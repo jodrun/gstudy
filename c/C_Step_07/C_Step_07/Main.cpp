@@ -33,17 +33,35 @@ int main(void)
         for (int j = 0; j < 3; j++)
         {
             printf_s("%d\t", iArray[i][j]);
-
+            
             if (j == 2)
             {
                 printf_s("\n");
             }
         }
     }
-    
-    printf_s("\n");
     */
+            
+    //문자 배열//
+    /*
+    char str1[5] = {'g', 'o', 'o', 'd', '\0'};
+    char str2[5] = "good";
 
+    printf_s("%s\n", str1);
+    printf_s("%s", str2);
+    */
+    
+    
+
+    char str1[6] = { 'g', 'o', 'o', 'd', ' ', '\0' };
+    char str2[9] = { 'm', 'o', 'r', 'n', 'i', 'n', 'g', '!', '\0' };
+
+    for (int i = 0; i < 5; i++)
+    {
+        printf_s("%c", str1[i]);   
+    }
+    
+    printf_s("%s\n", str2);
     
 
 
