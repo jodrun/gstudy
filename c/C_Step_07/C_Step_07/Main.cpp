@@ -3,6 +3,7 @@
 
 int main(void)
 {
+    //배열 방식
     /*
     int iArrayA[5] = { 1, 2, 3, 4, 5 };
     int iArrayB[] = { 1, 2, 3, 4, 5 };
@@ -43,7 +44,7 @@ int main(void)
     printf_s("\n");
     */
 
-
+    
 
 
 	return 0;
