@@ -17,7 +17,7 @@ int main(void)
 
 
 	//형식변환 ()안에 변수넣어주면 형식변환
-	//ex) fumber → (int)fumber
+	//ex) fnumber → (int)fnumber
 
 	float fnumber;
 	fnumber = 87.654321;
