@@ -34,6 +34,8 @@ struct taginfo
 
 int main (void)
 {
+
+	/*
 	// ** 10명의 학생이 있고, 각각의 학생은 국어, 영어, 수학 점수가 있다.
 	// ** 임이의 값으로 초기화 해서 출력해보자.
 
@@ -45,7 +47,9 @@ int main (void)
 	{
 		printf_s("%d %d %d\n", iKor[i], iEnd[i], iMath[i]);
 	}
+	*/
 	
+
 
 	/*
 	taginfo studenta;
