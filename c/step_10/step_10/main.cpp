@@ -33,10 +33,13 @@ typedef struct taginfo
 	int imath;
 }INFO;
 
+char* SetName();
+
+
 int main(void)
 {
 
-
+	/*
 	INFO2* pinfo = (INFO2*)malloc(sizeof(INFO2)); //동적할당 식   맨앞 괄호는(포인터형식변환*)
 	pinfo->pinventory = (INVENTORY*)malloc(sizeof(INVENTORY)); //동적할당 식
 
@@ -51,6 +54,7 @@ int main(void)
 
 	free(pinfo->pinventory); //순서중요 struct안에 있는 포인터부터 지워줌
 	free(pinfo);
+	*/
 
 
 
@@ -74,6 +78,7 @@ int main(void)
 	//출력
 	printf_s("%s\n", pname);
 	*/
+	
 
 	
 	
@@ -99,6 +104,29 @@ int main(void)
 	*/
 
 
+	
+
 
 	return 0;
+}
+
+
+char* SetName()
+{
+	// ** 입력을 임의로 저장할 공간.
+	char Buffer[128] = "";
+
+	printf_s("이름 입력 : ");
+
+	// ** 입력을 받음.
+	scanf("%s", Buffer);
+
+	// ** 포인터 변수에 (문자열의 길이만큼) 동적할당을 해준다. 
+	char* pName = (char*)malloc(strlen(Buffer) + 1);
+
+	// ** 문자열 복사.
+	strcpy(pName, Buffer);
+
+
+	return pName;
 }
