@@ -5,6 +5,43 @@
 #include <time.h>
 #include <Windows.h>
 
+//malloc   (strlen   (Buffer))     ** strlen은 동적할당에서 **문자의 갯수**만큼 크기를 할당한다는뜻 sizeof 로하면 되긴하지만 크기전체를 할당함.                     
+//malloc   (sizeof   (OBJECT))     ** sizeof는 동적할당에서 object라는 구조체 크기만큼 크기를 할당한다는뜻
+
+//call by reference 
+/*
+void momo(int* 갑, int* 을)
+{
+	*갑 = 100;
+	*을 = 200;
+}
+메인함수
+{
+	int i = 10;
+    int b = 20;
+	momo(&i, &b);                   메인함수에서 a, b의 주소값을 넘겨주면 momo 함수안에서 *갑 *을 포인터가 a,b주소안의 값에 접근하여    **직접적으로 값을 바꿔줌**
+
+	return 0;
+}
+
+//call by value
+
+void momo(int 갑, int 을)
+{
+	갑 = 100;
+	을 = 200;
+}
+메인함수
+{
+	int i = 10;
+	int b = 20;
+	momo(i, b);                   
+
+	return 0;                     요렇게 포인터를 안쓰고 함수에서 값을 바꿔도 함수안에서만 값이 바뀜 즉 메인함수에 **** a, b값이 안바뀜 ****
+}
+*/
+
+
 
 const int PLAYER = 0;
 const int ENEMY = 1;
