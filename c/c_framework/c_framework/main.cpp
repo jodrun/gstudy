@@ -43,6 +43,28 @@ void momo(int 갑, int 을)
 
 
 
+// ** 텍스트 알피지 참고자료 : https://www.youtube.com/watch?v=_nuS86ITjIM
+// ** 아스키코드 그림으로표현 : http://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20
+
+// ** 검정	 0
+// ** 어두운 파랑	 1
+// ** 어두운 초록	 2
+// ** 어두운 하늘	 3
+// ** 어두운 빨강	 4
+// ** 어두운 보라	 5
+// ** 어두운 노랑	 6
+// ** 회색	 7
+// ** 어두운 회색	 8
+// ** 파랑	 9
+// ** 초록	 10
+// ** 하늘	 11
+// ** 빨강	 12
+// ** 보라	 13
+// ** 노랑	 14
+// ** 하양	 15
+
+
+
 const int PLAYER = 0;
 const int ENEMY = 1;
 const int MAX = 2;
@@ -54,15 +76,11 @@ const int Scene_Exit = 3;
 
 int SceneState = 0;
 
+int Check = 1;
 
-
-
-
-
-
+// ** 각종 능력치 
 typedef struct tagInfo
 {
-	char* Name;
 	int HP;
 	int MP;
 
@@ -76,53 +94,81 @@ typedef struct tagInfo
 }INFO;
 
 
+// ** 오브젝트의 단위로 묶기위함.
 typedef struct tagObject
 {
+	char* Name;
 	INFO Info;
 
 }OBJECT;
 
 
-OBJECT* Objects[MAX];
-
-
-
-
-
-
-
-void SceneManager(int _SceneState);
-void InitializeObject(OBJECT* _Obj, int ObjectType);
+void SceneManager(OBJECT* _Player, OBJECT* _Enemy);
 char* SetName();
 
 void LogoScene();
 void MenuScene();
-void StageScene();
+void StageScene(OBJECT* _Player, OBJECT* _Enemy);
+
+void InitializePlayer(OBJECT* _Player);
+void PlayerScene(OBJECT* _Player);
+
+void InitializeEnemy(OBJECT* _Enemy);
+void EnemyScene(OBJECT* _Enemy);
 
 
+void SetPosition(int _x, int _y, char* _str, int _Color = 15);
+void SetColor(int _Color);
+void HideCursor();
 
 int main(void)
 {
-	Objects[PLAYER] = (OBJECT*)malloc(sizeof(OBJECT));
-	InitializeObject(Objects[PLAYER], PLAYER);
+	// ** 커서를 안보이게 함.
+	HideCursor();
 
-	Objects[ENEMY] = (OBJECT*)malloc(sizeof(OBJECT));
-	InitializeObject(Objects[ENEMY], ENEMY);
+	// ** 콘솔창의 사이즈를 설정.
+	system("mode con:cols=120 lines=30");
 
-	SceneState = 0;
+	// ** 콜솔창의 이름을 설정
+	system("title 홍길동 Framework v0.6");
+
+	// ** 전체 배경색을 변경함.
+	//system("color 70");
+
+
+	OBJECT* Player = (OBJECT*)malloc(sizeof(OBJECT));
+	InitializePlayer(Player);
+
+	OBJECT* Monster = (OBJECT*)malloc(sizeof(OBJECT));
+	InitializeEnemy(Monster);
+
+	DWORD dwTime = GetTickCount(); // 1/1000 (1000분의 1초)
+	int Delay = 1000;
+
+	int UpCount = 0;
 
 	while (true)
 	{
-		SceneManager(SceneState);
+		if (dwTime + Delay < GetTickCount())
+		{
+			dwTime = GetTickCount();
+
+			// ** 콘솔창에 있는 모든 내용을 지움.
+			system("cls");
+
+			printf_s("%s\n", Player->Name);
+
+			// ** 게임 루프
+			SceneManager(Player, Monster);
+		}
 	}
 
 	return 0;
 }
 
-
-void SceneManager(int _SceneState)
+void SceneManager(OBJECT* _Player, OBJECT* _Enemy)
 {
-	switch (_SceneState)
+	switch (SceneState)
 	{
 	case Scene_Logo:
 		LogoScene();
@@ -131,7 +177,7 @@ void SceneManager(int _SceneState)
 		MenuScene();
 		break;
 	case Scene_Stage:
-		StageScene();
+		StageScene(_Player, _Enemy);
 		break;
 	case Scene_Exit:
 
@@ -140,50 +186,45 @@ void SceneManager(int _SceneState)
 	}
 }
 
-
-void InitializeObject(OBJECT* _Obj, int ObjectType)
+char* SetName()
 {
-	switch (ObjectType)
-	{
-	case PLAYER:
-		_Obj->Info.Name = SetName();
-
-		_Obj->Info.Att = 10;
-		_Obj->Info.Def = 10;
-		_Obj->Info.EXP = 0;
-		_Obj->Info.HP = 100;
-		_Obj->Info.MP = 10;
-		_Obj->Info.Level = 1;
-		break;
-	case ENEMY:
-		_Obj->Info.Name = (char*)"Enemy";
-
-		_Obj->Info.Att = 5;
-		_Obj->Info.Def = 15;
-		_Obj->Info.EXP = 0;
-		_Obj->Info.HP = 30;
-		_Obj->Info.MP = 5;
-		_Obj->Info.Level = 1;
-		break;
-	}
-}
-
-char* SetName()    //포인터로 반환값을 입력했기에 리턴을 포인터로 받아야하니 동적할당 해줘야하고 strcpy 사용해줘야함
-{
+	// ** scanf 함수로 문자열을 입력받기 위해 문자열을 받을수있는 배열을 선언.
 	char Buffer[128] = "";
 
 	printf_s("이름 입력 : ");
+
+	// ** 문자열을 입력 받음.
 	scanf("%s", Buffer);
 
-	char* pName = (char*)malloc(strlen(Buffer) + 1); //포인터 pname을 만들어주고 buffer가 배열이니 타입변환 해주면서 동적할당
-	strcpy(pName, Buffer); //배열 buffer에 입력된 이름값을 포인터 pname에 넘겨줌
+	// ** 입력 받은값은 배열 이지만, 반환 값은 캐릭터 포인터형이므로 문자열을 복사햐야함.
+	// ** 문자열을 복사 하기위해 포인터가 가르키는 공간에 입력받은 문자열이 들아갈만큼의 크기로 메모리 할당.
+	char* pName = (char*)malloc(strlen(Buffer) + 1);
 
-	return pName; //즉 이름값이 배열에 들어갔으니 포인터로 변환해주는 과정을 거쳤음 그과정에서 (동적할당, strcpy) 사용됨
+	// ** Buffer 가 받은 문자열을 pName 으로 복사.
+	strcpy(pName, Buffer);
+
+	// ** 반환.
+	return pName;
 }
 
 void LogoScene()
 {
-	printf_s("LogoScene\n");
+	int Width = (120 / 2) - (strlen("      ,gggg,     _,gggggg,_        ,gg,         _,gggggg,_      ") / 2);
+	int Height = 10;
+
+	SetPosition(Width, Height + 1, (char*)"      ,gggg,     _,gggggg,_        ,gg,         _,gggggg,_      ");
+	SetPosition(Width, Height + 2, (char*)"      d8` `8I   ,d8P``d8P`Y8b,     i8``8i      ,d8P``d8P`Y8b,   ");
+	SetPosition(Width, Height + 3, (char*)"      88  ,dP  ,d8'   Y8   `8b,dP  `8,,8'     ,d8'   Y8   `8b,dP");
+	SetPosition(Width, Height + 4, (char*)"   8888888P`   d8'    `Ybaaad88P'   `Y88aaad8 d8'    `Ybaaad88P'");
+	SetPosition(Width, Height + 5, (char*)"      88       8P       `````Y8      d8````Y8,8P       `````Y8  ");
+	SetPosition(Width, Height + 6, (char*)"      88       8b            d8     ,8P     8b8b            d8  ");
+	SetPosition(Width, Height + 7, (char*)" ,aa,_88       Y8,          ,8P     dP      Y8Y8,          ,8P  ");
+	SetPosition(Width, Height + 8, (char*)"dP` `88P       `Y8,        ,8P' _ ,dP'      I8`Y8,        ,8P'  ");
+	SetPosition(Width, Height + 9, (char*)"Yb,_,d88b,,_    `Y8b,,__,,d8P'  `888,,_____,dP `Y8b,,__,,d8P'   ");
+	SetPosition(Width, Height + 10, (char*)" `Y8P`  `Y88888   ``Y8888P`'    a8P`Y888888P`    ``Y8888P`'     ");
+
+	Sleep(5000);
+
 	SceneState++;
 }
 
@@ -191,11 +232,10 @@ void MenuScene()
 {
 	printf_s("MenuScene\n");
 
-	printf_s("다음 씬 ㄱㄱ??\n1. 이동\n2. 종료\n일력 : ");
+	printf_s("다음 씬 ㄱㄱ??\n1. 이동\n2. 종료\n입력 : ");
 
 	int i = 0;
 	scanf("%d", &i);
-
 
 	if (i == 1)
 		SceneState++;
@@ -203,75 +243,84 @@ void MenuScene()
 		SceneState = Scene_Exit;
 }
 
-void StageScene()
+void StageScene(OBJECT* _Player, OBJECT* _Enemy)
 {
-	int iLoopCheck = 1;
-	while (iLoopCheck)
+	// ** 전투
+	PlayerScene(_Player);
+	EnemyScene(_Enemy);
+}
+
+void InitializePlayer(OBJECT* _Player)
+{
+	_Player->Name = SetName();
+
+	_Player->Info.Att = 10;
+	_Player->Info.Def = 10;
+	_Player->Info.EXP = 0;
+	_Player->Info.HP = 100;
+	_Player->Info.MP = 10;
+	_Player->Info.Level = 1;
+}
+
+DWORD SetnameTime = 0;
+
+void PlayerScene(OBJECT* _Player)
+{
+	if (SetnameTime + 10000 < GetTickCount())
+		Check = 1;
+
+	if (Check)
 	{
-		// ** 콘솔창을 모두 지움.
-		//system("cls");
+		SetnameTime = GetTickCount();
 
-		printf_s("\n[%s]\n", Objects[PLAYER]->Info.Name);
-		printf_s("HP : %d\n", Objects[PLAYER]->Info.HP);
-		printf_s("MP : %d\n", Objects[PLAYER]->Info.MP);
-		printf_s("공격력 : %.2f\n", Objects[PLAYER]->Info.Att);
-		printf_s("방어력 : %.2f\n", Objects[PLAYER]->Info.Def);
-		printf_s("EXP : %d\n", Objects[PLAYER]->Info.EXP);
-		printf_s("Level : %d\n\n", Objects[PLAYER]->Info.Level);
-
-		printf_s("[%s]\n", Objects[ENEMY]->Info.Name);
-		printf_s("HP : %d\n", Objects[ENEMY]->Info.HP);
-		printf_s("MP : %d\n", Objects[ENEMY]->Info.MP);
-		printf_s("공격력 : %.2f\n", Objects[ENEMY]->Info.Att);
-		printf_s("방어력 : %.2f\n", Objects[ENEMY]->Info.Def);
-		printf_s("EXP : %d\n", Objects[ENEMY]->Info.EXP);
-		printf_s("Level : %d\n\n", Objects[ENEMY]->Info.Level);
-
-		// ** 딜레이 함수   1/1000   (1000 = 1초)
-		Sleep(500);
-
-		int iChoice = 0;
-		printf_s("몬스터와 만났습니다. 공격하시겠습니까 ?\n1. 공격\n2. 도망\n입력 : ");
-		scanf_s("%d", &iChoice);
-
-
-		switch (iChoice)
-		{
-		case 1:
-			if (Objects[PLAYER]->Info.Att > Objects[ENEMY]->Info.Def)
-			{
-				Objects[ENEMY]->Info.HP -= Objects[PLAYER]->Info.Att - Objects[ENEMY]->Info.Def;
-			}
-			else
-				Objects[ENEMY]->Info.HP -= 1;
-
-			if (Objects[ENEMY]->Info.Att > Objects[PLAYER]->Info.Def)
-			{
-				Objects[PLAYER]->Info.HP -= Objects[ENEMY]->Info.Att - Objects[PLAYER]->Info.Def;
-			}
-			else
-				Objects[PLAYER]->Info.HP -= 1;
-
-			iLoopCheck = 0;
-			break;
-		case 2:
-
-			int iRand = rand() % 100;
-
-			if (iRand < 10)
-			{
-				printf_s("도망치는것에 [성공] 했습니다.\n");
-				iLoopCheck = 0;
-			}
-			else
-			{
-				printf_s("도망치는것에 [실패] 했습니다.\n");
-				printf_s("전투가 시작됩니다.\n");
-				iChoice = 1;
-			}
-
-			Sleep(1500);
-			break;
-		}
+		_Player->Name = SetName();
+		Check = 0;
 	}
+}
+
+void InitializeEnemy(OBJECT* _Enemy)
+{
+	_Enemy->Name = (char*)"Enemy";
+
+	_Enemy->Info.Att = 5;
+	_Enemy->Info.Def = 15;
+	_Enemy->Info.EXP = 0;
+	_Enemy->Info.HP = 30;
+	_Enemy->Info.MP = 5;
+	_Enemy->Info.Level = 1;
+}
+
+void EnemyScene(OBJECT* _Enemy)
+{
+
+}
+
+
+// 위치 이동하는 함수
+void SetPosition(int _x, int _y, char* _str, int _Color)
+{
+	COORD Pos = { _x, _y }; //SetConsoleCursorPosition 요 함수 형식이 coord를 필요로해서 사용
+
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
+	SetColor(_Color);
+
+	printf_s("%s", _str);
+}
+
+
+void SetColor(int _Color)
+{
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), _Color);
+}
+
+
+
+void HideCursor()
+{
+	CONSOLE_CURSOR_INFO Info;
+
+	Info.dwSize = 1;
+	Info.bVisible = false;
+
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &Info);
 }
