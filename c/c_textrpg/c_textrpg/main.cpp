@@ -21,8 +21,17 @@ int act1choice = 0;
 
 
 
+typedef struct _item
+{
+	int itematt;
+	int itemdff;
+	int price;
+}ITEM;
+
+
 typedef struct _Iventory
 {
+	ITEM item[3];
 	int Gold;
 }Iventory;
 
@@ -63,8 +72,11 @@ void StageScene(OBJECT* _Player, OBJECT* _Enemy, OBJECT* _Enemy1, OBJECT* _Enemy
 void act1(OBJECT* _Player, OBJECT* _Enemy);
 void act2(OBJECT* _Player, OBJECT* _Enemy1);
 void act3(OBJECT* _Player, OBJECT* _Enemy2);
-void StoreScene();
-void InventoryScene();
+
+void StoreScene(OBJECT* _Player);
+void WeaponStore(OBJECT* _Player);
+void AmorStore(OBJECT* _Player);
+void InventoryScene(OBJECT* _Player);
 
 void InitializePlayer(OBJECT* _Player);
 void PlayerSceneact1(OBJECT* _Player, OBJECT* _Enemy);
@@ -149,10 +161,10 @@ void SceneManager(OBJECT* _Player, OBJECT* _Enemy, OBJECT* _Enemy1, OBJECT* _Ene
 		StageScene(_Player, _Enemy, _Enemy1, _Enemy2);
 		break;
 	case Scene_Store:
-		StoreScene();
+		StoreScene(_Player);
 		break;
 	case Scene_Inventory:
-		InventoryScene();
+		InventoryScene(_Player);
 		break;
 	case Scene_Exit:
 
@@ -317,15 +329,61 @@ void act3(OBJECT* _Player, OBJECT* _Enemy2)
 
 }
 
-void StoreScene()
+
+
+void StoreScene(OBJECT* _Player)
+{
+	printf_s("*********************상점*********************\n\n");
+	printf_s("1, 무기상점\n2, 방어구상점\n3, 뒤로가기\n");
+	printf_s("입력 : ");
+	int storeselect = 0;
+	scanf("%d", &storeselect);
+
+	system("cls");
+
+	if (storeselect == 1)
+	{
+		WeaponStore(_Player);
+	}
+	else if (storeselect == 2)
+	{
+		AmorStore(_Player);
+	}
+	else if (storeselect == 3)
+	{
+		SceneState = Scene_Menu;
+	}
+}
+
+void WeaponStore(OBJECT* _Player)
+{
+	printf_s("*********************무기상점*********************\n\n");
+	
+	printf_s("소지골드 %d\n", _Player->iIventory.Gold);
+}
+
+void AmorStore(OBJECT* _Player)
+{
+	printf_s("*********************방어구상점*********************\n\n");
+
+	printf_s("소지골드 %d\n", _Player->iIventory.Gold);
+}
+
+
+
+void InventoryScene(OBJECT* _Player)
+{
+	printf_s("소지골드 %d\n", _Player->iIventory.Gold);
+}
+
+
+
+void Weapon1()
 {
 	
 }
 
-void InventoryScene()
-{
-	
-}
+
 
 void InitializePlayer(OBJECT* _Player)
 {
