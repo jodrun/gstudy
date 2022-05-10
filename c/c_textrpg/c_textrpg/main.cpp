@@ -19,10 +19,14 @@ int SceneState = 0;
 int iStageScene = 0;
 int act1choice = 0;
 
+int itemchoice1 = 0;
+int itemchoice2 = 0;
+int itemchoice3 = 0;
 
 
 typedef struct _item
 {
+	char* itemname;
 	int itematt;
 	int itemdff;
 	int price;
@@ -31,9 +35,16 @@ typedef struct _item
 
 typedef struct _Iventory
 {
-	ITEM item[3];
+	ITEM item1;
+	ITEM item2;
+	ITEM item3;
+	ITEM item4;
+	ITEM item5;
+	ITEM item6;
 	int Gold;
 }Iventory;
+
+
 
 typedef struct tagInfo
 {
@@ -56,38 +67,39 @@ typedef struct tagInfo
 typedef struct tagObject
 {
 	char* Name;
-	Iventory iIventory;
 	INFO Info;
 
 }OBJECT;
 
 
 
-void SceneManager(OBJECT* _Player, OBJECT* _Enemy, OBJECT* _Enemy1, OBJECT* _Enemy2);
+void SceneManager(OBJECT* _Player, OBJECT* _Enemy, OBJECT* _Enemy1, OBJECT* _Enemy2, Iventory* _item);
 char* SetName();
 
 void LogoScene();
 void MenuScene();
-void StageScene(OBJECT* _Player, OBJECT* _Enemy, OBJECT* _Enemy1, OBJECT* _Enemy2);
-void act1(OBJECT* _Player, OBJECT* _Enemy);
-void act2(OBJECT* _Player, OBJECT* _Enemy1);
-void act3(OBJECT* _Player, OBJECT* _Enemy2);
+void StageScene(OBJECT* _Player, OBJECT* _Enemy, OBJECT* _Enemy1, OBJECT* _Enemy2, Iventory* _item);
+void act1(OBJECT* _Player, OBJECT* _Enemy, Iventory* _item);
+void act2(OBJECT* _Player, OBJECT* _Enemy1, Iventory* _item);
+void act3(OBJECT* _Player, OBJECT* _Enemy2, Iventory* _item);
 
-void StoreScene(OBJECT* _Player);
-void WeaponStore(OBJECT* _Player);
-void AmorStore(OBJECT* _Player);
-void InventoryScene(OBJECT* _Player);
+void StoreScene(Iventory* _item);
+int WeaponStore(Iventory* _item);
+int AmorStore(Iventory* _item);
+void InventoryScene(OBJECT* _Player, Iventory* _item);
+
+void InitializeItem1(Iventory* _item);
 
 void InitializePlayer(OBJECT* _Player);
-void PlayerSceneact1(OBJECT* _Player, OBJECT* _Enemy);
-void PlayerSceneact2(OBJECT* _Player, OBJECT* _Enemy1);
-void PlayerSceneact3(OBJECT* _Player, OBJECT* _Enemy2);
+void PlayerSceneact1(OBJECT* _Player, OBJECT* _Enemy, Iventory* _item);
+void PlayerSceneact2(OBJECT* _Player, OBJECT* _Enemy1, Iventory* _item);
+void PlayerSceneact3(OBJECT* _Player, OBJECT* _Enemy2, Iventory* _item);
 void InitializeEnemy(OBJECT* _Enemy);
 void InitializeEnemy1(OBJECT* _Enemy1);
 void InitializeEnemy2(OBJECT* _Enemy2);
-void EnemySceneact1(OBJECT* _Enemy, OBJECT* _Player);
-void EnemySceneact2(OBJECT* _Enemy1, OBJECT* _Player);
-void EnemySceneact3(OBJECT* _Enemy2, OBJECT* _Player);
+void EnemySceneact1(OBJECT* _Enemy, OBJECT* _Player, Iventory* _item);
+void EnemySceneact2(OBJECT* _Enemy1, OBJECT* _Player, Iventory* _item);
+void EnemySceneact3(OBJECT* _Enemy2, OBJECT* _Player, Iventory* _item);
 
 void pHealSkill(OBJECT* _Player);
 void mHealSkill(OBJECT* _Enemy);
@@ -121,6 +133,8 @@ int main(void)
 	OBJECT* Monster2 = (OBJECT*)malloc(sizeof(OBJECT));
 	InitializeEnemy2(Monster2);
 
+	Iventory* Item1 = (Iventory*)malloc(sizeof(Iventory));
+	InitializeItem1(Item1);
 
 	DWORD dwTime = GetTickCount();
 	int Delay = 1000;
@@ -136,7 +150,7 @@ int main(void)
 			printf_s("%s님\n\n", Player->Name);
 
 			// ** 게임 루프
-			SceneManager(Player, Monster, Monster1, Monster2);
+			SceneManager(Player, Monster, Monster1, Monster2, Item1);
 		}
 	}
 
@@ -150,7 +164,7 @@ int main(void)
 
 
 
-void SceneManager(OBJECT* _Player, OBJECT* _Enemy, OBJECT* _Enemy1, OBJECT* _Enemy2)
+void SceneManager(OBJECT* _Player, OBJECT* _Enemy, OBJECT* _Enemy1, OBJECT* _Enemy2, Iventory* _item)
 {
 	switch (SceneState)
 	{
@@ -158,13 +172,13 @@ void SceneManager(OBJECT* _Player, OBJECT* _Enemy, OBJECT* _Enemy1, OBJECT* _Ene
 		MenuScene();
 		break;
 	case Scene_Stage:
-		StageScene(_Player, _Enemy, _Enemy1, _Enemy2);
+		StageScene(_Player, _Enemy, _Enemy1, _Enemy2, _item);
 		break;
 	case Scene_Store:
-		StoreScene(_Player);
+		StoreScene(_item);
 		break;
 	case Scene_Inventory:
-		InventoryScene(_Player);
+		InventoryScene(_Player, _item);
 		break;
 	case Scene_Exit:
 
@@ -222,7 +236,7 @@ void MenuScene()
 		SceneState = Scene_Exit;
 }
 
-void StageScene(OBJECT* _Player, OBJECT* _Enemy, OBJECT* _Enemy1, OBJECT* _Enemy2)
+void StageScene(OBJECT* _Player, OBJECT* _Enemy, OBJECT* _Enemy1, OBJECT* _Enemy2, Iventory* _item)
 {
 	printf_s("스테이지를 고르세요\n\n");
 	printf_s("1, 스테이지1(쉬움)\n");
@@ -235,15 +249,15 @@ void StageScene(OBJECT* _Player, OBJECT* _Enemy, OBJECT* _Enemy1, OBJECT* _Enemy
 
 	if (iStageScene == 1)
 	{
-		act1(_Player, _Enemy);
+		act1(_Player, _Enemy, _item);
 	}
 	else if (iStageScene == 2)
 	{
-		act2(_Player, _Enemy1);
+		act2(_Player, _Enemy1, _item);
 	}
 	else if (iStageScene == 3)
 	{
-		act3(_Player, _Enemy2);
+		act3(_Player, _Enemy2, _item);
 	}
 	else if (iStageScene == 4)
 	{
@@ -251,7 +265,7 @@ void StageScene(OBJECT* _Player, OBJECT* _Enemy, OBJECT* _Enemy1, OBJECT* _Enemy
 	}
 }
 
-void act1(OBJECT* _Player, OBJECT* _Enemy)
+void act1(OBJECT* _Player, OBJECT* _Enemy, Iventory* _item)
 {
 
 	printf_s("1, 스테이지1(쉬움)\n\n");
@@ -263,11 +277,11 @@ void act1(OBJECT* _Player, OBJECT* _Enemy)
 	{
 		if (act1choice == 0)
 		{
-			PlayerSceneact1(_Player, _Enemy);
+			PlayerSceneact1(_Player, _Enemy, _item);
 		}
 		else if (act1choice == 1)
 		{
-			EnemySceneact1(_Enemy, _Player);
+			EnemySceneact1(_Enemy, _Player, _item);
 		}
 		else if (act1choice == 9) //도망성공
 		{
@@ -277,7 +291,7 @@ void act1(OBJECT* _Player, OBJECT* _Enemy)
 	}
 }
 
-void act2(OBJECT* _Player, OBJECT* _Enemy1)
+void act2(OBJECT* _Player, OBJECT* _Enemy1, Iventory* _item)
 {
 	printf_s("2, 스테이지2(보통)\n\n");
 	Sleep(2000);
@@ -289,11 +303,11 @@ void act2(OBJECT* _Player, OBJECT* _Enemy1)
 	{
 		if (act1choice == 0)
 		{
-			PlayerSceneact2(_Player, _Enemy1);
+			PlayerSceneact2(_Player, _Enemy1, _item);
 		}
 		else if (act1choice == 1)
 		{
-			EnemySceneact2(_Enemy1, _Player);
+			EnemySceneact2(_Enemy1, _Player, _item);
 		}
 		else if (act1choice == 9) //도망성공
 		{
@@ -303,7 +317,7 @@ void act2(OBJECT* _Player, OBJECT* _Enemy1)
 	}
 }
 
-void act3(OBJECT* _Player, OBJECT* _Enemy2)
+void act3(OBJECT* _Player, OBJECT* _Enemy2, Iventory* _item)
 {
 	printf_s("3, 스테이지3(어려움)\n\n");
 	Sleep(2000);
@@ -314,11 +328,11 @@ void act3(OBJECT* _Player, OBJECT* _Enemy2)
 	{
 		if (act1choice == 0)
 		{
-			PlayerSceneact3(_Player, _Enemy2);
+			PlayerSceneact3(_Player, _Enemy2, _item);
 		}
 		else if (act1choice == 1)
 		{
-			EnemySceneact3(_Enemy2, _Player);
+			EnemySceneact3(_Enemy2, _Player, _item);
 		}
 		else if (act1choice == 9) //도망성공
 		{
@@ -331,7 +345,7 @@ void act3(OBJECT* _Player, OBJECT* _Enemy2)
 
 
 
-void StoreScene(OBJECT* _Player)
+void StoreScene(Iventory* _item)
 {
 	printf_s("*********************상점*********************\n\n");
 	printf_s("1, 무기상점\n2, 방어구상점\n3, 뒤로가기\n");
@@ -343,11 +357,11 @@ void StoreScene(OBJECT* _Player)
 
 	if (storeselect == 1)
 	{
-		WeaponStore(_Player);
+		WeaponStore(_item);
 	}
 	else if (storeselect == 2)
 	{
-		AmorStore(_Player);
+		AmorStore(_item);
 	}
 	else if (storeselect == 3)
 	{
@@ -355,32 +369,77 @@ void StoreScene(OBJECT* _Player)
 	}
 }
 
-void WeaponStore(OBJECT* _Player)
+int WeaponStore(Iventory* _item)
 {
-	printf_s("*********************무기상점*********************\n\n");
+	while (true)
+	{
+	    printf_s("*********************무기상점*********************\n\n");
+		printf_s("소지골드 %d\n\n", _item->Gold);
+	    printf_s("1, 싸구려검 가격 : %d\n", _item->item1.price);
+	    printf_s("2, 보통검   가격 : %d\n", _item->item2.price);
+	    printf_s("3, 나이스검 가격 : %d\n", _item->item3.price);
+	    printf_s("4, 뒤로가기\n\n");
+	    printf_s("입력 : ");
 	
-	printf_s("소지골드 %d\n", _Player->iIventory.Gold);
+	    int a = 0;
+	    scanf("%d", &a);
+		system("cls");
+	
+		if (a == 1 && _item->Gold >= _item->item1.price)
+		{
+			printf_s("싸구려검을 구입하셨습니다");
+			Sleep(2000);
+			_item->Gold -= _item->item1.price;
+			itemchoice1 = 1;
+			break;
+		}
+        else if (a == 4)
+		{
+			break;
+		}
+	
+	}
+
+	return itemchoice1;
 }
 
-void AmorStore(OBJECT* _Player)
+int AmorStore(Iventory* _item)
 {
 	printf_s("*********************방어구상점*********************\n\n");
 
-	printf_s("소지골드 %d\n", _Player->iIventory.Gold);
+	printf_s("소지골드 %d\n", _item->Gold);
+
+	return itemchoice1;
 }
 
 
 
-void InventoryScene(OBJECT* _Player)
+void InventoryScene(OBJECT* _Player, Iventory* _item)
 {
-	printf_s("소지골드 %d\n", _Player->iIventory.Gold);
+	if (itemchoice1 == 1)
+	{
+		printf_s("싸구려검");
+	}
+	printf_s("소지골드 %d\n", _item->Gold);
 }
 
 
 
-void Weapon1()
+void InitializeItem1(Iventory* _item)
 {
-	
+	_item->Gold = 0;
+
+	_item->item1.itemname = (char*)"싸구려검";
+	_item->item1.itematt = 10;
+	_item->item1.price = 100;
+
+	_item->item2.itemname = (char*)"보통검";
+	_item->item2.itematt = 100;
+	_item->item2.price = 1000;
+
+	_item->item3.itemname = (char*)"나이스검";
+	_item->item3.itematt = 1000;
+	_item->item3.price = 10000;
 }
 
 
@@ -389,7 +448,7 @@ void InitializePlayer(OBJECT* _Player)
 {
 	_Player->Name = SetName();
 
-	_Player->Info.Att = 30;
+	_Player->Info.Att = 100;
 	_Player->Info.Def = 10;
 	_Player->Info.EXP = 0;
 	_Player->Info.HP = 100;
@@ -397,10 +456,9 @@ void InitializePlayer(OBJECT* _Player)
 	_Player->Info.MP = 10;
 	_Player->Info.MPMAX = 10;
 	_Player->Info.Level = 1;
-	_Player->iIventory.Gold = 0;
 }
 
-void PlayerSceneact1(OBJECT* _Player, OBJECT* _Enemy)
+void PlayerSceneact1(OBJECT* _Player, OBJECT* _Enemy, Iventory* _item)
 {
 	printf_s("%s님\n", _Player->Name);
 	printf_s("Player Level : %d\n", _Player->Info.Level);
@@ -409,7 +467,7 @@ void PlayerSceneact1(OBJECT* _Player, OBJECT* _Enemy)
 	printf_s("Player Att : %d\n", _Player->Info.Att);
 	printf_s("Player Def : %d\n", _Player->Info.Def);
 	printf_s("Player EXP : %d\n\n", _Player->Info.EXP);
-	printf_s("보유 Gold : %d\n\n", _Player->iIventory.Gold);
+	printf_s("보유 Gold : %d\n\n", _item->Gold);
 	printf_s("1, 공격\n2, 방어\n3, 힐\n9, 도망가기\n입력 : ");
 	
 
@@ -512,7 +570,7 @@ void PlayerSceneact1(OBJECT* _Player, OBJECT* _Enemy)
 	{
 		srand(time(NULL));
 		GetGold = rand() % (_Enemy->Info.GoldMax - _Enemy->Info.GoldMin + 1) + _Enemy->Info.GoldMin;
-		_Player->iIventory.Gold += GetGold;
+		_item->Gold += GetGold;
 		_Player->Info.EXP += _Enemy->Info.EXP;
 
 		printf_s("\n적을 처치하였습니다.\n");
@@ -532,12 +590,12 @@ void PlayerSceneact1(OBJECT* _Player, OBJECT* _Enemy)
 
 }
 
-void PlayerSceneact2(OBJECT* _Player, OBJECT* _Enemy1)
+void PlayerSceneact2(OBJECT* _Player, OBJECT* _Enemy1, Iventory* _item)
 {
 
 }
 
-void PlayerSceneact3(OBJECT* _Player, OBJECT* _Enemy2)
+void PlayerSceneact3(OBJECT* _Player, OBJECT* _Enemy2, Iventory* _item)
 {
 
 }
@@ -591,7 +649,7 @@ void InitializeEnemy2(OBJECT* _Enemy2)
 }		  
 
 
-void EnemySceneact1(OBJECT* _Enemy, OBJECT* _Player)
+void EnemySceneact1(OBJECT* _Enemy, OBJECT* _Player, Iventory* _item)
 {
 
 	printf_s("적 차례 입니다.\n");
@@ -675,12 +733,12 @@ void EnemySceneact1(OBJECT* _Enemy, OBJECT* _Player)
 	}
 }
 
-void EnemySceneact2(OBJECT* _Enemy1, OBJECT* _Player)
+void EnemySceneact2(OBJECT* _Enemy1, OBJECT* _Player, Iventory* _item)
 {
 
 }
 
-void EnemySceneact3(OBJECT* _Enemy2, OBJECT* _Player)
+void EnemySceneact3(OBJECT* _Enemy2, OBJECT* _Player, Iventory* _item)
 {
 
 }
