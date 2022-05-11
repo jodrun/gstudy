@@ -83,10 +83,10 @@ void act1(OBJECT* _Player, OBJECT* _Enemy, Iventory* _item);
 void act2(OBJECT* _Player, OBJECT* _Enemy1, Iventory* _item);
 void act3(OBJECT* _Player, OBJECT* _Enemy2, Iventory* _item);
 
-void StoreScene(Iventory* _item);
+int StoreScene(Iventory* _item);
 int WeaponStore(Iventory* _item);
 int AmorStore(Iventory* _item);
-void InventoryScene(OBJECT* _Player, Iventory* _item);
+int InventoryScene(OBJECT* _Player, Iventory* _item);
 
 void InitializeItem1(Iventory* _item);
 
@@ -166,7 +166,7 @@ int main(void)
 
 void SceneManager(OBJECT* _Player, OBJECT* _Enemy, OBJECT* _Enemy1, OBJECT* _Enemy2, Iventory* _item)
 {
-	switch (SceneState)
+	switch (SceneState) 
 	{
 	case Scene_Menu:
 		MenuScene();
@@ -345,7 +345,7 @@ void act3(OBJECT* _Player, OBJECT* _Enemy2, Iventory* _item)
 
 
 
-void StoreScene(Iventory* _item)
+int StoreScene(Iventory* _item)
 {
 	printf_s("*********************상점*********************\n\n");
 	printf_s("1, 무기상점\n2, 방어구상점\n3, 뒤로가기\n");
@@ -367,6 +367,8 @@ void StoreScene(Iventory* _item)
 	{
 		SceneState = Scene_Menu;
 	}
+
+	return itemchoice1, itemchoice2, itemchoice3;
 }
 
 int WeaponStore(Iventory* _item)
@@ -387,20 +389,78 @@ int WeaponStore(Iventory* _item)
 	
 		if (a == 1 && _item->Gold >= _item->item1.price)
 		{
-			printf_s("싸구려검을 구입하셨습니다");
-			Sleep(2000);
-			_item->Gold -= _item->item1.price;
-			itemchoice1 = 1;
-			break;
+			if (itemchoice1 == 1)
+			{
+				printf_s("싸구려검이 이미 있습니다");
+				Sleep(2000);
+				break;
+			}
+			else
+			{
+				printf_s("싸구려검을 구입하셨습니다");
+				Sleep(2000);
+				_item->Gold -= _item->item1.price;
+				itemchoice1 = 1;
+			}
 		}
-        else if (a == 4)
+		else if (a == 1 && _item->Gold < _item->item1.price)
+		{
+			printf_s("골드가 부족합니다.");
+			Sleep(2000);
+		}
+		
+		if (a == 2 && _item->Gold >= _item->item2.price)
+		{
+        	if (itemchoice2 == 1)
+			{
+				printf_s("보통검이 이미 있습니다");
+				Sleep(2000);
+				break;
+			}
+			else
+			{
+				printf_s("보통검을 구입하셨습니다");
+				Sleep(2000);
+				_item->Gold -= _item->item2.price;
+				itemchoice2 = 1;
+			}
+		}
+		else if (a == 2 && _item->Gold < _item->item2.price)
+		{
+			printf_s("골드가 부족합니다.");
+			Sleep(2000);
+		}
+		
+		if (a == 3 && _item->Gold >= _item->item3.price)
+		{
+			if (itemchoice3 == 1)
+			{
+				printf_s("나이스검이 이미 있습니다");
+				Sleep(2000);
+				break;
+			}
+			else
+			{
+				printf_s("나이스검을 구입하셨습니다");
+				Sleep(2000);
+				_item->Gold -= _item->item3.price;
+				itemchoice3 = 1;
+			}
+		}
+		else if (a == 3 && _item->Gold < _item->item3.price)
+		{
+			printf_s("골드가 부족합니다.");
+			Sleep(2000);
+		}
+
+
+		if (a == 4)
 		{
 			break;
 		}
-	
 	}
 
-	return itemchoice1;
+	return itemchoice1, itemchoice2, itemchoice3;
 }
 
 int AmorStore(Iventory* _item)
@@ -414,20 +474,52 @@ int AmorStore(Iventory* _item)
 
 
 
-void InventoryScene(OBJECT* _Player, Iventory* _item)
+int InventoryScene(OBJECT* _Player, Iventory* _item)
 {
-	if (itemchoice1 == 1)
+	printf_s("소지골드 %d\n\n", _item->Gold);
+	while (true)
 	{
-		printf_s("싸구려검");
+		if (itemchoice1 == 1)
+		{
+			printf_s("싸구려검 을 착용 하시겠습니까?\n");
+			printf_s("1, 착용\n2, 미착용\n");
+			int a = 0;
+			scanf("%d", &a);
+
+			if (a == 1)
+			{
+				printf_s("싸구려검 을 착용하였습니다.\n");
+				Sleep(2000);
+				_Player->Info.Att += _item->item1.itematt;
+				break;
+			}
+			else if (a == 2)
+			{
+				break;
+			}
+			break;
+		}
+
+		printf_s("\n9, 나가기\n");
+		int exit = 0;
+		scanf("%d", &exit);
+		if (exit == 9)
+		{
+			SceneState = Scene_Menu;
+			break;
+		}
 	}
-	printf_s("소지골드 %d\n", _item->Gold);
+
+
+
+	return _Player->Info.Att += _item->item1.itematt, _Player->Info.Att += _item->item2.itematt, _Player->Info.Att += _item->item3.itematt;
 }
 
 
 
 void InitializeItem1(Iventory* _item)
 {
-	_item->Gold = 0;
+	_item->Gold = 10000;
 
 	_item->item1.itemname = (char*)"싸구려검";
 	_item->item1.itematt = 10;
