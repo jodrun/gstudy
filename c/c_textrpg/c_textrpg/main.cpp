@@ -29,6 +29,8 @@ int itemchoice6 = 0;
 int inventorycountweapon = 0;
 int inventorycountamor = 0;
 
+int levelupexp[10] = { 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 50200 };
+
 typedef struct _item
 {
 	char* itemname;
@@ -96,6 +98,8 @@ int InventoryScene(OBJECT* _Player, Iventory* _item);
 void InitializeItem1(Iventory* _item);
 
 void InitializePlayer(OBJECT* _Player);
+void levelup(OBJECT* _Player);
+
 void PlayerSceneact1(OBJECT* _Player, OBJECT* _Enemy, Iventory* _item);
 void PlayerSceneact2(OBJECT* _Player, OBJECT* _Enemy1, Iventory* _item);
 void PlayerSceneact3(OBJECT* _Player, OBJECT* _Enemy2, Iventory* _item);
@@ -569,9 +573,11 @@ int AmorStore(Iventory* _item)
 int InventoryScene(OBJECT* _Player, Iventory* _item)
 {
 	int att = 0;
+	int dff = 0;
 	
 	printf_s("소지골드 %d\n\n", _item->Gold);
 	
+	if (itemchoice1 == 1)
 
 	if (itemchoice1 == 1)
 	{
@@ -706,14 +712,14 @@ int InventoryScene(OBJECT* _Player, Iventory* _item)
 	
 	system("cls");
 
-	return att;
+	return att, dff;
 }
 
 
 
 void InitializeItem1(Iventory* _item)
 {
-	_item->Gold = 30000;
+	_item->Gold = 0;
 
 	_item->item1.itemname = (char*)"싸구려검";
 	_item->item1.itematt = 10;
@@ -746,7 +752,7 @@ void InitializePlayer(OBJECT* _Player)
 {
 	_Player->Name = SetName();
 
-	_Player->Info.Att = 100;
+	_Player->Info.Att = 10;
 	_Player->Info.Def = 10;
 	_Player->Info.EXP = 0;
 	_Player->Info.HP = 100;
@@ -755,6 +761,26 @@ void InitializePlayer(OBJECT* _Player)
 	_Player->Info.MPMAX = 10;
 	_Player->Info.Level = 1;
 }
+
+void levelup(OBJECT* _Player)
+{
+	if (_Player->Info.EXP >= levelupexp[_Player->Info.Level - 1])
+	{
+		printf_s("레벨업을 하였습니다!.");
+		Sleep(2000);
+		system("cls");
+		_Player->Info.Level += 1;
+		_Player->Info.Att *= 2;
+		_Player->Info.Def *= 2;
+		_Player->Info.EXP = 0;
+		_Player->Info.HP *= 2;
+		_Player->Info.HPMAX *= 2;
+		_Player->Info.MP *= 2;
+		_Player->Info.MPMAX *= 2;
+	}
+}
+
+
 
 void PlayerSceneact1(OBJECT* _Player, OBJECT* _Enemy, Iventory* _item)
 {
@@ -870,6 +896,7 @@ void PlayerSceneact1(OBJECT* _Player, OBJECT* _Enemy, Iventory* _item)
 		GetGold = rand() % (_Enemy->Info.GoldMax - _Enemy->Info.GoldMin + 1) + _Enemy->Info.GoldMin;
 		_item->Gold += GetGold;
 		_Player->Info.EXP += _Enemy->Info.EXP;
+		levelup(_Player);
 
 		printf_s("\n적을 처치하였습니다.\n");
 		printf_s("획득 골드 : %d\n", GetGold);
@@ -903,7 +930,7 @@ void InitializeEnemy(OBJECT* _Enemy)
 	_Enemy->Name = (char*)"약한적";
 
 	_Enemy->Info.Att = 10;
-	_Enemy->Info.Def = 40;
+	_Enemy->Info.Def = 25;
 	_Enemy->Info.EXP = 50;
 	_Enemy->Info.HP = 30;
 	_Enemy->Info.HPMAX = 30;
@@ -920,7 +947,7 @@ void InitializeEnemy1(OBJECT* _Enemy1)
 		  
 	_Enemy1->Info.Att = 100;
 	_Enemy1->Info.Def = 200;
-	_Enemy1->Info.EXP = 1000;
+	_Enemy1->Info.EXP = 500;
 	_Enemy1->Info.HP = 200;
 	_Enemy1->Info.HPMAX = 200;
 	_Enemy1->Info.MP = 10;
@@ -936,7 +963,7 @@ void InitializeEnemy2(OBJECT* _Enemy2)
 		  
 	_Enemy2->Info.Att = 1000;
 	_Enemy2->Info.Def = 2000;
-	_Enemy2->Info.EXP = 2000;
+	_Enemy2->Info.EXP = 5000;
 	_Enemy2->Info.HP = 3000;
 	_Enemy2->Info.HPMAX = 3000;
 	_Enemy2->Info.MP = 30;
