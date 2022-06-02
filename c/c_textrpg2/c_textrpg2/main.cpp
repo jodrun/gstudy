@@ -70,6 +70,12 @@ struct DrawTextInfo
 };
 
 
+
+bool bIsJumpping = false;     // 현재 점프 중인가
+bool bIsJumpped = false;      // 현재 점프하여 최고 지점에 올랐는가
+
+
+
 void LogoScene();
 
 char* SetName();
@@ -169,7 +175,6 @@ int main(void)
 				Enemy[0]->TransInfo.Position.y + 2,
 				10);
 
-		
 	
 		}
 	}
@@ -239,8 +244,36 @@ void UpdateInput(Object* _Object)
 {
 	// ** [상] 키를 입력받음.
 	if (GetAsyncKeyState(VK_UP))
-		_Object->TransInfo.Position.y -= 1;
-	
+	{
+		bIsJumpping = true;
+	}
+	if (bIsJumpping)
+	{
+		if (_Object->TransInfo.Position.y > 12 && bIsJumpped == false)
+		{
+			_Object->TransInfo.Position.y -= 3;
+		}
+		else if (_Object->TransInfo.Position.y == 12)
+		{
+			bIsJumpped = true;
+		}
+		else if (bIsJumpped)
+		{
+			_Object->TransInfo.Position.y += 3;
+		}
+		else if (bIsJumpped && _Object->TransInfo.Position.y == 12)
+		{
+			bIsJumpped = false;
+			bIsJumpping = false;
+		}
+	}
+	else
+	{
+		if (_Object->TransInfo.Position.y < 15)
+			_Object->TransInfo.Position.y++;
+	}
+
+
 	// ** [하] 키를 입력받음.
 	if (GetAsyncKeyState(VK_DOWN))
 		_Object->TransInfo.Position.y += 1;
