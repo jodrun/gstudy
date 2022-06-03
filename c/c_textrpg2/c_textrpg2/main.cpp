@@ -29,9 +29,7 @@ struct Trasnsform
 
 struct Information
 {
-	char* Texture;
-	char* Texture2;
-	char* Texture3;
+	char* Texture[4][3];
 
 	int HP;
 	int HPMAX;
@@ -58,7 +56,8 @@ struct Object
 {
 	char* Name;
 	int Speed;
-	
+	int State;
+
 	Information Info;
 	Trasnsform TransInfo;
 };
@@ -75,12 +74,23 @@ bool bIsJumpping = false;     // 현재 점프 중인가
 bool bIsJumpped = false;      // 현재 점프하여 최고 지점에 올랐는가
 
 
+const int Idle = 0;
+const int Attack = 1;
+const int Down = 2;
+const int hit = 3;
+const int Move = 4;
+ 
+
+
+
+
+
 
 void LogoScene();
 
 char* SetName();
 
-void Initialize(Object* _Object, char* _Texture, char* _Texture2, char* _Texture3, float _PosX = 0, float _PosY = 0, float _PosZ = 0);
+void Initialize(Object* _Object, char* _Texture, char* _Texture2, char* _Texture3, float _PosX = 0, float _PosY = 0, float _PosZ = 0, int _Anim = 0);
 
 void InitializeStatus(Object* _Object, char* _name, int _HP, int _HPMAX, int _MP, int _MPMAX, int _EXP, int _Att,
 	int _ITEMATT, int _Def, int _ITEMDFF, short _Level, short _GoldMin, short _GoldMax, short _Gold);
@@ -109,27 +119,46 @@ int main(void)
 	system("cls");
 
 	Object* Player = new Object;
-	Initialize(Player, (char*)" o   /", (char*)"ㅁ /", (char*)"ll", 35, 15);
+	// *************************플레이어 초기화****************************
+	Player->Info.Texture[Idle][0] = (char*)" o   /";
+	Player->Info.Texture[Idle][1] = (char*)"ㅁ /";
+	Player->Info.Texture[Idle][2] = (char*)"11";
+
+	Player->Info.Texture[Attack][0] = (char*)"  o    ";
+	Player->Info.Texture[Attack][1] = (char*)" ㅁ  ㅡㅡ";
+	Player->Info.Texture[Attack][2] = (char*)"／＼";
+
+	Player->Info.Texture[Down][0] = (char*)"";
+	Player->Info.Texture[Down][1] = (char*)"  ㅁ ㅇ";
+	Player->Info.Texture[Down][2] = (char*)"┌ ┐";
+
+	// ** 좌표값
+	Player->TransInfo.Position = Vector3(35, 15, 0);
+
+	// ** 회전값 (현재 사용되지 않음.)
+	Player->TransInfo.Rotation = Vector3(0.0f, 0.0f, 0.0f);
+
+	Player->State = Idle;
+
+	// ** 크기값
+	Player->TransInfo.Scale = Vector3(
+		(float)strlen(Player->Info.Texture[Idle][1]), 1.0f, 0.0f);
+	// *********************************************************************
 	InitializeStatus(Player, nullptr, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
 	
+
 	Object* Enemy[5];
 	for (int i = 0; i < 5; ++i)
 	{
 		Enemy[i] = nullptr;
 		Enemy[i] = new Object;
 	}
-    Initialize(Enemy[0], (char*)"ㅡㅡ", (char*)"   ㅣ ", (char*)"    ㅡㅡ   ", 70, 15);
+ 
+	Initialize(Enemy[0], (char*)"ㅡㅡ", (char*)"   ㅣ ", (char*)"    ㅡㅡ   ", 70, 15);
 	InitializeStatus(Enemy[0], (char*)"지렁이", 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
-
-
-
-
-
-
-
-
-
+	
 
 
 
@@ -137,6 +166,8 @@ int main(void)
 
 	while (true)
 	{
+		srand((unsigned int)time(NULL));
+
 		if (Time + 50 < GetTickCount64())
 		{
 			Time = GetTickCount64();
@@ -148,34 +179,23 @@ int main(void)
 			OnDrawText((char*)"========================================================================================================================", 0, 18, 15);
 
 			// ** Player 출력
-			OnDrawText(Player->Info.Texture,
-				Player->TransInfo.Position.x,
-				Player->TransInfo.Position.y,
-				10);
-			OnDrawText(Player->Info.Texture2,
-				Player->TransInfo.Position.x,
-				Player->TransInfo.Position.y + 1,
-				10);
-			OnDrawText(Player->Info.Texture3,
-				Player->TransInfo.Position.x,
-				Player->TransInfo.Position.y + 2,
-				10);
+
+			for (int i = 0; i < 3; ++i)
+			{
+				OnDrawText(Player->Info.Texture[Player->State][i],
+					Player->TransInfo.Position.x,
+					Player->TransInfo.Position.y + i,
+					10);
+			}
 
 			// ** Enemy 출력
-			OnDrawText(Enemy[0]->Info.Texture,
-				Enemy[0]->TransInfo.Position.x,
-				Enemy[0]->TransInfo.Position.y,
-				10);
-			OnDrawText(Enemy[0]->Info.Texture2,
-				Enemy[0]->TransInfo.Position.x,
-				Enemy[0]->TransInfo.Position.y + 1,
-				10);
-			OnDrawText(Enemy[0]->Info.Texture3,
-				Enemy[0]->TransInfo.Position.x,
-				Enemy[0]->TransInfo.Position.y + 2,
-				10);
-
-	
+			for (int i = 0; i < 3; ++i)
+			{
+				OnDrawText(Enemy[0]->Info.Texture[0][i],
+					Enemy[0]->TransInfo.Position.x,
+					Enemy[0]->TransInfo.Position.y + i,
+					10);
+			}
 		}
 	}
 	return 0;
@@ -213,11 +233,11 @@ char* SetName()
 	return pName;
 }
 
-void Initialize(Object* _Object, char* _Texture, char* _Texture2, char* _Texture3, float _PosX, float _PosY, float _PosZ)
+void Initialize(Object* _Object, char* _Texture, char* _Texture2, char* _Texture3, float _PosX, float _PosY, float _PosZ, int _Anim)
 {
-	_Object->Info.Texture = _Texture;
-	_Object->Info.Texture2 = _Texture2;
-	_Object->Info.Texture3 = _Texture3;
+	_Object->Info.Texture[_Anim][0] = _Texture;
+	_Object->Info.Texture[_Anim][1] = _Texture2;
+	_Object->Info.Texture[_Anim][2] = _Texture3;
 
 	_Object->Speed = 0;
 
@@ -229,7 +249,7 @@ void Initialize(Object* _Object, char* _Texture, char* _Texture2, char* _Texture
 
 	// ** 크기값
 	_Object->TransInfo.Scale = Vector3(
-		(float)strlen(_Object->Info.Texture), 1.0f, 0.0f);
+		(float)strlen(_Object->Info.Texture[_Anim][1]), 1.0f, 0.0f);
 }
 
 void InitializeStatus(Object* _Object, char* _name, int _HP, int _HPMAX, int _MP, int _MPMAX, int _EXP, int _Att, int _ITEMATT, int _Def, int _ITEMDFF, short _Level, short _GoldMin, short _GoldMax, short _Gold)
@@ -247,36 +267,33 @@ void UpdateInput(Object* _Object)
 	{
 		bIsJumpping = true;
 	}
+	
 	if (bIsJumpping)
 	{
 		if (_Object->TransInfo.Position.y > 12 && bIsJumpped == false)
 		{
-			_Object->TransInfo.Position.y -= 3;
+			_Object->TransInfo.Position.y--;	
 		}
-		else if (_Object->TransInfo.Position.y == 12)
+		if (_Object->TransInfo.Position.y == 12)
 		{
 			bIsJumpped = true;
 		}
-		else if (bIsJumpped)
+		if (bIsJumpped == true)
 		{
-			_Object->TransInfo.Position.y += 3;
+			_Object->TransInfo.Position.y++;
 		}
-		else if (bIsJumpped && _Object->TransInfo.Position.y == 12)
+		if (bIsJumpped && _Object->TransInfo.Position.y == 15)
 		{
 			bIsJumpped = false;
 			bIsJumpping = false;
-		}
+		}	
 	}
-	else
-	{
-		if (_Object->TransInfo.Position.y < 15)
-			_Object->TransInfo.Position.y++;
-	}
-
 
 	// ** [하] 키를 입력받음.
 	if (GetAsyncKeyState(VK_DOWN))
-		_Object->TransInfo.Position.y += 1;
+		_Object->State = Down;
+	else
+		_Object->State = Idle;
 
 	// ** [좌] 키를 입력받음.
 	if (GetAsyncKeyState(VK_LEFT))
@@ -287,17 +304,10 @@ void UpdateInput(Object* _Object)
 		_Object->TransInfo.Position.x += 1;
 
 	if (GetAsyncKeyState(VK_SPACE))
-	{
-		_Object->Info.Texture = (char*)"  o    ";
-		_Object->Info.Texture2 = (char*)" ㅁ  ㅡㅡ";
-		_Object->Info.Texture3 = (char*)"／＼";
-	}
+		_Object->State = Attack;
 	else
-	{
-		_Object->Info.Texture = (char*)" o   /";
-		_Object->Info.Texture2 = (char*)"ㅁ /";
-		_Object->Info.Texture3 = (char*)"11";
-	}
+		if(_Object->State != Down)
+			_Object->State = Idle;
 }
 
 
