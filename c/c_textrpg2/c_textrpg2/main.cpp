@@ -80,7 +80,8 @@ const int Down = 2;
 const int hit = 3;
 const int Move = 4;
  
-
+float udo = 0;                // 따라가기 (길이) 변수
+Vector3 udo1 = { 0, 0, 0 };   // 따라가기 (방향) 변수
 
 
 
@@ -97,6 +98,8 @@ void InitializeStatus(Object* _Object, char* _name, int _HP, int _HPMAX, int _MP
 
 void UpdateInput(Object* _Object);
 
+void enemymove(Object* _enemy, Object* _player);
+
 
 
 
@@ -109,6 +112,10 @@ void OnDrawText(const char* _str, const float _x, const float _y, const int _Col
 void OnDrawText(const int _Value, const float _x, const float _y, const int _Color = 15);
 
 void HideCursor(const bool _Visible);
+
+float GetDistance(const Object* _ObjectA, const Object* _ObjectB);
+
+Vector3 GetDirection(const Object* _ObjectA, const Object* _ObjectB);
 
 
 
@@ -158,6 +165,10 @@ int main(void)
 	Initialize(Enemy[0], (char*)"ㅡㅡ", (char*)"   ㅣ ", (char*)"    ㅡㅡ   ", 70, 15);
 	InitializeStatus(Enemy[0], (char*)"지렁이", 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
+
+
+
+
 	
 
 
@@ -174,6 +185,11 @@ int main(void)
 			system("cls");
 			
 			UpdateInput(Player);
+
+			udo = GetDistance(Player, Enemy[0]);
+			udo1 = GetDirection(Player, Enemy[0]);
+
+			enemymove(Enemy[0], Player);
 
 			// ** 배경 출력
 			OnDrawText((char*)"========================================================================================================================", 0, 18, 15);
@@ -270,17 +286,17 @@ void UpdateInput(Object* _Object)
 	
 	if (bIsJumpping)
 	{
-		if (_Object->TransInfo.Position.y > 12 && bIsJumpped == false)
+		if (_Object->TransInfo.Position.y > 14 && bIsJumpped == false)
 		{
-			_Object->TransInfo.Position.y--;	
+			_Object->TransInfo.Position.y -= 4;
 		}
-		if (_Object->TransInfo.Position.y == 12)
+		if (_Object->TransInfo.Position.y < 14)
 		{
 			bIsJumpped = true;
 		}
 		if (bIsJumpped == true)
 		{
-			_Object->TransInfo.Position.y++;
+			_Object->TransInfo.Position.y ++;
 		}
 		if (bIsJumpped && _Object->TransInfo.Position.y == 15)
 		{
@@ -308,6 +324,22 @@ void UpdateInput(Object* _Object)
 	else
 		if(_Object->State != Down)
 			_Object->State = Idle;
+}
+
+void enemymove(Object* _enemy, Object* _player)
+{
+	/*
+	srand(time(NULL));
+	int r = rand() % 2 + 1;
+	if (r == 1 && _enemy->TransInfo.Position.x > 65)
+	{
+		_enemy->TransInfo.Position.x -= 1;
+	}
+	else if (r == 2 && _enemy->TransInfo.Position.x < 85)
+	{
+		_enemy->TransInfo.Position.x += 1;
+	}
+	*/
 }
 
 
@@ -357,4 +389,23 @@ void HideCursor(const bool _Visible)
 
 	SetConsoleCursorInfo(
 		GetStdHandle(STD_OUTPUT_HANDLE), &CursorInfo);
+}
+
+float GetDistance(const Object* _ObjectA, const Object* _ObjectB)
+{
+	float x = _ObjectA->TransInfo.Position.x - _ObjectB->TransInfo.Position.x;
+	float y = _ObjectA->TransInfo.Position.y - _ObjectB->TransInfo.Position.y;
+
+	// ** sqrt : 제곱근 함수
+	return sqrt((x * x) + (y * y));
+}
+
+Vector3 GetDirection(const Object* _ObjectA, const Object* _ObjectB)
+{
+	float x = _ObjectA->TransInfo.Position.x - _ObjectB->TransInfo.Position.x;
+	float y = _ObjectA->TransInfo.Position.y - _ObjectB->TransInfo.Position.y;
+
+	float Distance = sqrt((x * x) + (y * y));
+
+	return Vector3(x / Distance, y / Distance);
 }
