@@ -83,6 +83,8 @@ const int Move = 4;
 float udo = 0;                // 따라가기 (길이) 변수
 Vector3 udo1 = { 0, 0, 0 };   // 따라가기 (방향) 변수
 
+bool enemymoveing = false;               // 적움직임
+
 
 
 
@@ -328,18 +330,46 @@ void UpdateInput(Object* _Object)
 
 void enemymove(Object* _enemy, Object* _player)
 {
-	/*
-	srand(time(NULL));
-	int r = rand() % 2 + 1;
-	if (r == 1 && _enemy->TransInfo.Position.x > 65)
+	int time = clock();
+	int totaltime = (clock() - time) / CLOCKS_PER_SEC;
+	printf_s("%d", time);
+	printf_s("\n%d", totaltime);
+
+	//
+	if (udo <= 25)       // 플레이어, 적 거리가 25 이내로 가까워지면 접근하는 코드
 	{
-		_enemy->TransInfo.Position.x -= 1;
+		if (_enemy->TransInfo.Position.x > _player->TransInfo.Position.x)
+		{
+			int i = rand() % 7 + 1;
+			printf("%d", i);
+			if (i == 3)
+			{
+				_enemy->TransInfo.Position.x -= 1;
+			}
+			else
+			{
+			    _enemy->TransInfo.Position.x -= 0.2;
+			}
+		}
+		else if (_enemy->TransInfo.Position.x < _player->TransInfo.Position.x)
+		{
+			_enemy->TransInfo.Position.x += 0.2;
+		}
+		if (_enemy->TransInfo.Position.x <= 65)
+			enemymoveing = true;
 	}
-	else if (r == 2 && _enemy->TransInfo.Position.x < 85)
+	else if (_enemy->TransInfo.Position.x > 5 && _enemy->TransInfo.Position.x >= 65 && enemymoveing == false)
 	{
-		_enemy->TransInfo.Position.x += 1;
+		_enemy->TransInfo.Position.x -= 0.2;
+		if (_enemy->TransInfo.Position.x <= 65)
+			enemymoveing = true;
 	}
-	*/
+    else if (_enemy->TransInfo.Position.x < 115 && _enemy->TransInfo.Position.x <= 75 && enemymoveing == true)
+	{
+		_enemy->TransInfo.Position.x += 0.2;
+		if (_enemy->TransInfo.Position.x >= 75)
+			enemymoveing = false;
+	}
 }
 
 
