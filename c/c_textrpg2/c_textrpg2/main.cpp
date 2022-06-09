@@ -119,6 +119,10 @@ float GetDistance(const Object* _ObjectA, const Object* _ObjectB);
 
 Vector3 GetDirection(const Object* _ObjectA, const Object* _ObjectB);
 
+bool Collision(const Object* _ObjectA, const Object* _ObjectB);
+
+void CollisionStage(Object* _ObjectA, Object* _ObjectB);
+
 
 
 int main(void)
@@ -140,6 +144,10 @@ int main(void)
 	Player->Info.Texture[Down][0] = (char*)"";
 	Player->Info.Texture[Down][1] = (char*)"  ㅁ ㅇ";
 	Player->Info.Texture[Down][2] = (char*)"┌ ┐";
+
+	Player->Info.Texture[hit][0] = (char*)"ㅇ";
+	Player->Info.Texture[hit][1] = (char*)"／ㅁ＼";
+	Player->Info.Texture[hit][2] = (char*)"//";
 
 	// ** 좌표값
 	Player->TransInfo.Position = Vector3(35, 15, 0);
@@ -164,7 +172,7 @@ int main(void)
 		Enemy[i] = new Object;
 	}
  
-	Initialize(Enemy[0], (char*)"ㅡㅡ", (char*)"   ㅣ ", (char*)"    ㅡㅡ   ", 70, 15);
+	Initialize(Enemy[0], (char*)"ㅡㅡ", (char*)"   ㅣ ", (char*)"    ㅡㅡ", 70, 15);
 	InitializeStatus(Enemy[0], (char*)"지렁이", 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 
@@ -193,11 +201,12 @@ int main(void)
 
 			enemymove(Enemy[0], Player);
 
+			CollisionStage(Player, Enemy[0]);
+
 			// ** 배경 출력
 			OnDrawText((char*)"========================================================================================================================", 0, 18, 15);
 
 			// ** Player 출력
-
 			for (int i = 0; i < 3; ++i)
 			{
 				OnDrawText(Player->Info.Texture[Player->State][i],
@@ -214,6 +223,11 @@ int main(void)
 					Enemy[0]->TransInfo.Position.y + i,
 					10);
 			}
+
+
+
+
+
 		}
 	}
 	return 0;
@@ -330,18 +344,12 @@ void UpdateInput(Object* _Object)
 
 void enemymove(Object* _enemy, Object* _player)
 {
-	int time = clock();
-	int totaltime = (clock() - time) / CLOCKS_PER_SEC;
-	printf_s("%d", time);
-	printf_s("\n%d", totaltime);
-
-	//
 	if (udo <= 25)       // 플레이어, 적 거리가 25 이내로 가까워지면 접근하는 코드
 	{
+		int i = rand() % 7 + 1;
+		printf("%d", i);
 		if (_enemy->TransInfo.Position.x > _player->TransInfo.Position.x)
 		{
-			int i = rand() % 7 + 1;
-			printf("%d", i);
 			if (i == 3)
 			{
 				_enemy->TransInfo.Position.x -= 1;
@@ -438,4 +446,50 @@ Vector3 GetDirection(const Object* _ObjectA, const Object* _ObjectB)
 	float Distance = sqrt((x * x) + (y * y));
 
 	return Vector3(x / Distance, y / Distance);
+}
+
+bool Collision(Object* _ObjectA, Object* _ObjectB)
+{
+	// ** (_Object->TransInfo.Position.x + _Object->TransInfo.Scale.x)   : 우측
+	// ** _Object->TransInfo.Position.x   : 좌측
+	// ** Rect 충돌시 우측선은 항상 크다.
+	if ((_ObjectA->TransInfo.Position.x + _ObjectA->TransInfo.Scale.x) > _ObjectB->TransInfo.Position.x &&
+		(_ObjectB->TransInfo.Position.x + _ObjectB->TransInfo.Scale.x) > _ObjectA->TransInfo.Position.x &&
+		_ObjectA->TransInfo.Position.y == _ObjectB->TransInfo.Position.y)
+		return true;
+	return false;
+}
+
+void CollisionStage(Object* _ObjectA, Object* _ObjectB)
+{
+	//** 충돌판정
+	if (Collision(_ObjectA, _ObjectB))
+	{
+		_ObjectA->State = hit;
+		bIsJumpping = true;
+		if (bIsJumpping)
+		{
+			if (_ObjectA->TransInfo.Position.y > 14 && bIsJumpped == false)
+			{
+				_ObjectA->TransInfo.Position.y -= 2;
+			}
+			if (_ObjectA->TransInfo.Position.y < 14)
+			{
+				bIsJumpped = true;
+			}
+			if (bIsJumpped == true)
+			{
+				_ObjectA->TransInfo.Position.y++;
+			}
+			if (bIsJumpped && _ObjectA->TransInfo.Position.y == 15)
+			{
+				bIsJumpped = false;
+				bIsJumpping = false;
+			}
+		}
+		for (int j = 0; j < 7; ++j)
+		{
+			_ObjectA->TransInfo.Position.x += udo1.x;
+		}
+	}
 }
