@@ -69,10 +69,8 @@ struct DrawTextInfo
 };
 
 
-
 bool bIsJumpping = false;     // 현재 점프 중인가
 bool bIsJumpped = false;      // 현재 점프하여 최고 지점에 올랐는가
-
 
 const int Idle = 0;
 const int Attack = 1;
@@ -83,7 +81,11 @@ const int Move = 4;
 float udo = 0;                // 따라가기 (길이) 변수
 Vector3 udo1 = { 0, 0, 0 };   // 따라가기 (방향) 변수
 
-bool enemymoveing = false;               // 적움직임
+bool enemymoving = false;    // 적움직임
+bool collisiontime = false;
+
+LONGLONG time2;               // 충돌 했을때 흐른 시간 (딜레이 주기위함)
+
 
 
 
@@ -101,6 +103,8 @@ void InitializeStatus(Object* _Object, char* _name, int _HP, int _HPMAX, int _MP
 void UpdateInput(Object* _Object);
 
 void enemymove(Object* _enemy, Object* _player);
+
+void enemymovestage(Object* _enemy, Object* _player);
 
 
 
@@ -172,7 +176,11 @@ int main(void)
 		Enemy[i] = new Object;
 	}
  
-	Initialize(Enemy[0], (char*)"ㅡㅡ", (char*)"   ㅣ ", (char*)"    ㅡㅡ", 70, 15);
+	Initialize(Enemy[0], (char*)"ㅡㅡ", (char*)"   ㅣ", (char*)"    ㅡㅡ", 70, 15);
+	Enemy[0]->State = Idle;
+	Enemy[0]->Info.Texture[Attack][0] = (char*)" ㅡㅡ";
+	Enemy[0]->Info.Texture[Attack][1] = (char*)"   ／";
+	Enemy[0]->Info.Texture[Attack][2] = (char*)"   ㅡㅡ";
 	InitializeStatus(Enemy[0], (char*)"지렁이", 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 
@@ -184,6 +192,8 @@ int main(void)
 
 
 	ULONGLONG Time = GetTickCount64();
+	LONGLONG time3 = GetTickCount64();  //** 에너미 제자리 움직임 딜레이
+	
 
 	while (true)
 	{
@@ -199,7 +209,16 @@ int main(void)
 			udo = GetDistance(Player, Enemy[0]);
 			udo1 = GetDirection(Player, Enemy[0]);
 
-			enemymove(Enemy[0], Player);
+			enemymovestage(Enemy[0], Player);
+			if (time3 + 350 < GetTickCount64())
+			{
+				Enemy[0]->State = Attack;
+				if (time3 + 650 < GetTickCount64())
+				{
+					Enemy[0]->State = Idle;
+					time3 = GetTickCount64();
+				}
+			}
 
 			CollisionStage(Player, Enemy[0]);
 
@@ -218,13 +237,13 @@ int main(void)
 			// ** Enemy 출력
 			for (int i = 0; i < 3; ++i)
 			{
-				OnDrawText(Enemy[0]->Info.Texture[0][i],
+				OnDrawText(Enemy[0]->Info.Texture[Enemy[0]->State][i],
 					Enemy[0]->TransInfo.Position.x,
 					Enemy[0]->TransInfo.Position.y + i,
 					10);
 			}
 
-
+			
 
 
 
@@ -364,22 +383,26 @@ void enemymove(Object* _enemy, Object* _player)
 			_enemy->TransInfo.Position.x += 0.2;
 		}
 		if (_enemy->TransInfo.Position.x <= 65)
-			enemymoveing = true;
+			enemymoving = true;
 	}
-	else if (_enemy->TransInfo.Position.x > 5 && _enemy->TransInfo.Position.x >= 65 && enemymoveing == false)
+	else if (_enemy->TransInfo.Position.x > 5 && _enemy->TransInfo.Position.x >= 65 && enemymoving == false)
 	{
 		_enemy->TransInfo.Position.x -= 0.2;
 		if (_enemy->TransInfo.Position.x <= 65)
-			enemymoveing = true;
+			enemymoving = true;
 	}
-    else if (_enemy->TransInfo.Position.x < 115 && _enemy->TransInfo.Position.x <= 75 && enemymoveing == true)
+    else if (_enemy->TransInfo.Position.x < 115 && _enemy->TransInfo.Position.x <= 75 && enemymoving == true)
 	{
 		_enemy->TransInfo.Position.x += 0.2;
 		if (_enemy->TransInfo.Position.x >= 75)
-			enemymoveing = false;
+			enemymoving = false;
 	}
 }
 
+void enemymovestage(Object* _enemy, Object* _player)
+{
+	enemymove(_enemy, _player);
+}
 
 
 
@@ -465,6 +488,8 @@ void CollisionStage(Object* _ObjectA, Object* _ObjectB)
 	//** 충돌판정
 	if (Collision(_ObjectA, _ObjectB))
 	{
+		time2 = GetTickCount64();
+		collisiontime = true;
 		_ObjectA->State = hit;
 		bIsJumpping = true;
 		if (bIsJumpping)
@@ -490,6 +515,16 @@ void CollisionStage(Object* _ObjectA, Object* _ObjectB)
 		for (int j = 0; j < 7; ++j)
 		{
 			_ObjectA->TransInfo.Position.x += udo1.x;
+		}
+	}
+	
+	if (collisiontime)
+	{
+		OnDrawText((char*)"100", _ObjectA->TransInfo.Position.x, _ObjectA->TransInfo.Position.y - 2);
+
+		if (time2 + 500 < GetTickCount64())
+		{
+			collisiontime = false;
 		}
 	}
 }
