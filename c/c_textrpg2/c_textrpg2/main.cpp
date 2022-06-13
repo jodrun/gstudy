@@ -60,6 +60,7 @@ struct Object
 
 	Information Info;
 	Trasnsform TransInfo;
+	Trasnsform attackscale;
 };
 
 struct DrawTextInfo
@@ -71,6 +72,8 @@ struct DrawTextInfo
 
 bool bIsJumpping = false;     // 현재 점프 중인가
 bool bIsJumpped = false;      // 현재 점프하여 최고 지점에 올랐는가
+bool enemybIsJumpping = false;     
+bool enemybIsJumpped = false;
 
 const int Idle = 0;
 const int Attack = 1;
@@ -78,14 +81,16 @@ const int Down = 2;
 const int hit = 3;
 const int Move = 4;
  
-float udo = 0;                // 따라가기 (길이) 변수
-Vector3 udo1 = { 0, 0, 0 };   // 따라가기 (방향) 변수
+float udo = 0;                  // 따라가기 (길이) 변수
+Vector3 udo1 = { 0, 0, 0 };     // 따라가기 (방향) 변수
 
-bool enemymoving = false;    // 적움직임
-bool collisiontime = false;
+bool enemymoving = false;       // 적움직임
+bool collisiontime = false;     // 충돌후 출력 딜레이 주기위함
+bool collisiontime1 = false;    // 충돌후 출력 딜레이 주기위함
+bool playerattackbool = false;
 
-LONGLONG time2;               // 충돌 했을때 흐른 시간 (딜레이 주기위함)
-
+LONGLONG time2;                 // 충돌 했을때 흐른 시간 (딜레이 주기위함)
+LONGLONG time4;
 
 
 
@@ -125,7 +130,11 @@ Vector3 GetDirection(const Object* _ObjectA, const Object* _ObjectB);
 
 bool Collision(const Object* _ObjectA, const Object* _ObjectB);
 
+bool PlayerAttackCollision(Object* _ObjectA, Object* _ObjectB);
+
 void CollisionStage(Object* _ObjectA, Object* _ObjectB);
+
+void enemyjumping(Object* _Object);
 
 
 
@@ -221,6 +230,7 @@ int main(void)
 			}
 
 			CollisionStage(Player, Enemy[0]);
+			enemyjumping(Enemy[0]);
 
 			// ** 배경 출력
 			OnDrawText((char*)"========================================================================================================================", 0, 18, 15);
@@ -355,10 +365,22 @@ void UpdateInput(Object* _Object)
 		_Object->TransInfo.Position.x += 1;
 
 	if (GetAsyncKeyState(VK_SPACE))
+	{
 		_Object->State = Attack;
+		playerattackbool = true;
+		if (playerattackbool)
+		{
+			_Object->attackscale.Scale.x = (float)strlen(_Object->Info.Texture[Attack][1]);
+		}
+	}
+
 	else
-		if(_Object->State != Down)
+		if (_Object->State != Down)
+		{
+			playerattackbool = false;
+			_Object->attackscale.Scale.x = 0;
 			_Object->State = Idle;
+		}
 }
 
 void enemymove(Object* _enemy, Object* _player)
@@ -483,8 +505,28 @@ bool Collision(Object* _ObjectA, Object* _ObjectB)
 	return false;
 }
 
+bool PlayerAttackCollision(Object* _ObjectA, Object* _ObjectB)
+{
+	// ** (_Object->TransInfo.Position.x + _Object->TransInfo.Scale.x)   : 우측
+	// ** _Object->TransInfo.Position.x   : 좌측
+	// ** Rect 충돌시 우측선은 항상 크다.
+	if ((_ObjectA->TransInfo.Position.x + _ObjectA->attackscale.Scale.x) > _ObjectB->TransInfo.Position.x &&
+		(_ObjectB->TransInfo.Position.x + _ObjectB->TransInfo.Scale.x) > _ObjectA->TransInfo.Position.x &&
+		_ObjectA->TransInfo.Position.y == _ObjectB->TransInfo.Position.y)
+		return true;
+	return false;
+}
+
 void CollisionStage(Object* _ObjectA, Object* _ObjectB)
 {
+
+	if (playerattackbool && PlayerAttackCollision(_ObjectA, _ObjectB))
+	{
+		time4 = GetTickCount64();
+		collisiontime1 = true;
+		enemybIsJumpping = true;
+	}
+
 	//** 충돌판정
 	if (Collision(_ObjectA, _ObjectB))
 	{
@@ -511,10 +553,10 @@ void CollisionStage(Object* _ObjectA, Object* _ObjectB)
 				bIsJumpped = false;
 				bIsJumpping = false;
 			}
-		}
-		for (int j = 0; j < 7; ++j)
-		{
-			_ObjectA->TransInfo.Position.x += udo1.x;
+			for (int j = 0; j < 7; ++j)
+			{
+				_ObjectA->TransInfo.Position.x += udo1.x;
+			}
 		}
 	}
 	
@@ -526,5 +568,40 @@ void CollisionStage(Object* _ObjectA, Object* _ObjectB)
 		{
 			collisiontime = false;
 		}
+	}
+
+	if (collisiontime1)
+	{
+		OnDrawText((char*)"100", _ObjectB->TransInfo.Position.x + 2, _ObjectB->TransInfo.Position.y - 2);
+
+		if (time4 + 500 < GetTickCount64())
+		{
+			collisiontime1 = false;
+		}
+	}
+}
+
+void enemyjumping(Object* _Object)
+{
+	if (enemybIsJumpping)
+	{
+		if (_Object->TransInfo.Position.y > 14 && enemybIsJumpped == false)
+		{
+			_Object->TransInfo.Position.y -= 3;
+		}
+		if (_Object->TransInfo.Position.y <= 14)
+		{
+			enemybIsJumpped = true;
+		}
+		if (enemybIsJumpped)
+		{
+			_Object->TransInfo.Position.y++;
+		}
+		if (enemybIsJumpped && _Object->TransInfo.Position.y == 15)
+		{
+			enemybIsJumpped = false;
+			enemybIsJumpping = false;
+		}
+		_Object->TransInfo.Position.x += 2;
 	}
 }
