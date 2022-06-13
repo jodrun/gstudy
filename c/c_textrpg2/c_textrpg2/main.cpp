@@ -373,14 +373,20 @@ void UpdateInput(Object* _Object)
 			_Object->attackscale.Scale.x = (float)strlen(_Object->Info.Texture[Attack][1]);
 		}
 	}
-
 	else
+	{
 		if (_Object->State != Down)
 		{
 			playerattackbool = false;
 			_Object->attackscale.Scale.x = 0;
 			_Object->State = Idle;
 		}
+		else if (_Object->State == Down)
+		{
+			playerattackbool = false;
+			_Object->attackscale.Scale.x = 0;
+		}
+	}
 }
 
 void enemymove(Object* _enemy, Object* _player)
