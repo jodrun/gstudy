@@ -45,6 +45,8 @@ struct Information
 
 	short Level;
 
+	short Gold;
+
 	short GoldMin;
 	short GoldMax;
 
@@ -88,6 +90,7 @@ bool enemymoving = false;       // 적움직임
 bool collisiontime = false;     // 충돌후 출력 딜레이 주기위함
 bool collisiontime1 = false;    // 충돌후 출력 딜레이 주기위함
 bool playerattackbool = false;
+bool bulletskill = false;
 
 LONGLONG time2;                 // 충돌 했을때 흐른 시간 (딜레이 주기위함)
 LONGLONG time4;
@@ -102,8 +105,7 @@ char* SetName();
 
 void Initialize(Object* _Object, char* _Texture, char* _Texture2, char* _Texture3, float _PosX = 0, float _PosY = 0, float _PosZ = 0, int _Anim = 0);
 
-void InitializeStatus(Object* _Object, char* _name, int _HP, int _HPMAX, int _MP, int _MPMAX, int _EXP, int _Att,
-	int _ITEMATT, int _Def, int _ITEMDFF, short _Level, short _GoldMin, short _GoldMax, short _Gold);
+void InitializeStatus(Object* _Object, char* _name, int _HP, int _HPMAX, int _MP, int _MPMAX, int _EXP, int _Att, int _ITEMATT, int _Def, int _ITEMDFF, short _Level, short _Gold, short _GoldMax, short _GoldMin);
 
 void UpdateInput(Object* _Object);
 
@@ -135,6 +137,10 @@ bool PlayerAttackCollision(Object* _ObjectA, Object* _ObjectB);
 void CollisionStage(Object* _ObjectA, Object* _ObjectB);
 
 void enemyjumping(Object* _Object);
+
+void palyerstatusdraw(Object* _Object);
+
+void enemystatusdraw(Object* _Object);
 
 
 
@@ -174,8 +180,7 @@ int main(void)
 	Player->TransInfo.Scale = Vector3(
 		(float)strlen(Player->Info.Texture[Idle][1]), 1.0f, 0.0f);
 	// *********************************************************************
-	InitializeStatus(Player, nullptr, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-
+	InitializeStatus(Player, nullptr, 100, 100, 10, 10, 0, 20, 0, 10, 0, 1, 0, 0, 0);
 	
 
 	Object* Enemy[5];
@@ -190,13 +195,11 @@ int main(void)
 	Enemy[0]->Info.Texture[Attack][0] = (char*)" ㅡㅡ";
 	Enemy[0]->Info.Texture[Attack][1] = (char*)"   ／";
 	Enemy[0]->Info.Texture[Attack][2] = (char*)"   ㅡㅡ";
-	InitializeStatus(Enemy[0], (char*)"지렁이", 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-
-
-
-
+	InitializeStatus(Enemy[0], (char*)"지렁이", 150, 150, 5, 5, 50, 30, 0, 5, 0, 1, 0, 100, 10);
 
 	
+	Object* Bullet = new Object;
+	Initialize(Bullet, (char*)"→", (char*)"", (char*)"", Player->TransInfo.Position.x + strlen(Player->Info.Texture[Idle][1]), 15);
 
 
 
@@ -253,7 +256,8 @@ int main(void)
 					10);
 			}
 
-			
+			palyerstatusdraw(Player);
+			enemystatusdraw(Enemy[0]);
 
 
 
@@ -313,17 +317,20 @@ void Initialize(Object* _Object, char* _Texture, char* _Texture2, char* _Texture
 		(float)strlen(_Object->Info.Texture[_Anim][1]), 1.0f, 0.0f);
 }
 
-void InitializeStatus(Object* _Object, char* _name, int _HP, int _HPMAX, int _MP, int _MPMAX, int _EXP, int _Att, int _ITEMATT, int _Def, int _ITEMDFF, short _Level, short _GoldMin, short _GoldMax, short _Gold)
+void InitializeStatus(Object* _Object, char* _name, int _HP, int _HPMAX, int _MP, int _MPMAX, int _EXP, int _Att, int _ITEMATT, int _Def, int _ITEMDFF, short _Level, short _Gold, short _GoldMax, short _GoldMin)
 {
 	_Object->Name = (_name == nullptr) ? SetName() : _name;
 	_Object->Info.HP = _HP, _Object->Info.HPMAX = _HPMAX;
 	_Object->Info.MP = _MP, _Object->Info.MPMAX = _MPMAX;
 	_Object->Info.EXP = _EXP;
+	_Object->Info.Att = _Att, _Object->Info.ITEMATT = _ITEMATT;
+	_Object->Info.Def = _Def, _Object->Info.ITEMDFF = _ITEMDFF;
+	_Object->Info.Level = _Level, _Object->Info.Gold = _Gold;
+	_Object->Info.GoldMax = _GoldMax, _Object->Info.GoldMin = _GoldMin;
 }
 
 void UpdateInput(Object* _Object)
 {
-	// ** [상] 키를 입력받음.
 	if (GetAsyncKeyState(VK_UP))
 	{
 		bIsJumpping = true;
@@ -350,17 +357,14 @@ void UpdateInput(Object* _Object)
 		}	
 	}
 
-	// ** [하] 키를 입력받음.
 	if (GetAsyncKeyState(VK_DOWN))
 		_Object->State = Down;
 	else
 		_Object->State = Idle;
 
-	// ** [좌] 키를 입력받음.
 	if (GetAsyncKeyState(VK_LEFT))
 		_Object->TransInfo.Position.x -= 1;
 
-	// ** [우] 키를 입력받음.
 	if (GetAsyncKeyState(VK_RIGHT))
 		_Object->TransInfo.Position.x += 1;
 
@@ -387,6 +391,11 @@ void UpdateInput(Object* _Object)
 			_Object->attackscale.Scale.x = 0;
 		}
 	}
+
+	if (GetAsyncKeyState(0x43) & 0x0001)
+	{
+		bulletskill = true;
+	}
 }
 
 void enemymove(Object* _enemy, Object* _player)
@@ -394,7 +403,6 @@ void enemymove(Object* _enemy, Object* _player)
 	if (udo <= 25)       // 플레이어, 적 거리가 25 이내로 가까워지면 접근하는 코드
 	{
 		int i = rand() % 7 + 1;
-		printf("%d", i);
 		if (_enemy->TransInfo.Position.x > _player->TransInfo.Position.x)
 		{
 			if (i == 3)
@@ -525,7 +533,6 @@ bool PlayerAttackCollision(Object* _ObjectA, Object* _ObjectB)
 
 void CollisionStage(Object* _ObjectA, Object* _ObjectB)
 {
-
 	if (playerattackbool && PlayerAttackCollision(_ObjectA, _ObjectB))
 	{
 		time4 = GetTickCount64();
@@ -610,4 +617,26 @@ void enemyjumping(Object* _Object)
 		}
 		_Object->TransInfo.Position.x += 2;
 	}
+}
+
+void palyerstatusdraw(Object* _Object)
+{
+	OnDrawText((char*)"Name : ", 1, 1, 15), OnDrawText(_Object->Name, strlen("Name :  "), 1, 15);
+	OnDrawText((char*)"HP : ", 1, 2, 15), OnDrawText(_Object->Info.HP, strlen("HP :  "), 2, 14);
+	OnDrawText((char*)"MP : ", 1 + strlen("HP :  ") + sizeof(_Object->Info.HP), 2, 15), OnDrawText(_Object->Info.MP, 1 + strlen("HP :  ") + sizeof(_Object->Info.HP) + strlen("MP : "), 2, 14);
+	OnDrawText((char*)"EXP : ", 1, 3, 15), OnDrawText(_Object->Info.EXP, strlen("EXP :  "), 3, 15);
+	OnDrawText((char*)"ATT : ", 1, 4, 15), OnDrawText(_Object->Info.Att, strlen("ATT :  "), 4, 15);
+	OnDrawText((char*)"ITEMATT : ", 1, 5, 15), OnDrawText(_Object->Info.ITEMATT, strlen("ITEMATT :  "), 5, 15);
+	OnDrawText((char*)"DEF : ", 1, 6, 15), OnDrawText(_Object->Info.Def, strlen("DEF :  "), 6, 15);
+	OnDrawText((char*)"ITEMDEF : ", 1, 7, 15), OnDrawText(_Object->Info.ITEMDFF, strlen("ITEMDEF :  "), 7, 15);
+	OnDrawText((char*)"LEVEL : ", 1, 8, 15), OnDrawText(_Object->Info.Level, strlen("LEVEL :  "), 8, 15);
+	OnDrawText((char*)"GOLD : ", 1, 9, 15), OnDrawText(_Object->Info.Gold, strlen("GOLD :  "), 9, 15);
+}
+
+void enemystatusdraw(Object* _Object)
+{
+	OnDrawText((char*)"Name : ", 105, 1, 15), OnDrawText(_Object->Name, 105 + strlen("Name : "), 1, 15);
+	OnDrawText((char*)"HP : ", 105, 2, 15), OnDrawText(_Object->Info.HP, 105 + strlen("HP : "), 2, 14);
+    OnDrawText((char*)"MP : ", 105, 3, 15), OnDrawText(_Object->Info.MP, 105 + strlen("MP : "), 3, 14);
+	OnDrawText((char*)"LEVEL : ", 105, 4, 15), OnDrawText(_Object->Info.Level, 105 + strlen("LEVEL : "), 4, 15);
 }
