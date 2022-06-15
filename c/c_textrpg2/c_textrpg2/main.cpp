@@ -89,17 +89,20 @@ Vector3 udo1 = { 0, 0, 0 };     // 따라가기 (방향) 변수
 bool enemymoving = false;       // 적움직임
 bool collisiontime = false;     // 충돌후 출력 딜레이 주기위함
 bool collisiontime1 = false;    // 충돌후 출력 딜레이 주기위함
+bool collisiontime2 = false;    // 충돌후 출력 딜레이 주기위함
 bool playerattackbool = false;
 bool bulletskill = false;
 
-LONGLONG time2;                 // 충돌 했을때 흐른 시간 (딜레이 주기위함)
-LONGLONG time4;
-
+ULONGLONG Glovertime1;                 // 충돌 했을때 흐른 시간 (딜레이 주기위함)
+ULONGLONG Glovertime2;
+ULONGLONG Glovertime3;
 
 
 
 
 void LogoScene();
+
+void SceneManager(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Time1);
 
 char* SetName();
 
@@ -107,7 +110,7 @@ void Initialize(Object* _Object, char* _Texture, char* _Texture2, char* _Texture
 
 void InitializeStatus(Object* _Object, char* _name, int _HP, int _HPMAX, int _MP, int _MPMAX, int _EXP, int _Att, int _ITEMATT, int _Def, int _ITEMDFF, short _Level, short _Gold, short _GoldMax, short _GoldMin);
 
-void UpdateInput(Object* _Object);
+void UpdateInput(Object* _Object, Object* _Bullet);
 
 void enemymove(Object* _enemy, Object* _player);
 
@@ -134,7 +137,7 @@ bool Collision(const Object* _ObjectA, const Object* _ObjectB);
 
 bool PlayerAttackCollision(Object* _ObjectA, Object* _ObjectB);
 
-void CollisionStage(Object* _ObjectA, Object* _ObjectB);
+void CollisionStage(Object* _ObjectA, Object* _ObjectB, Object* _Bullet);
 
 void enemyjumping(Object* _Object);
 
@@ -197,14 +200,11 @@ int main(void)
 	Enemy[0]->Info.Texture[Attack][2] = (char*)"   ㅡㅡ";
 	InitializeStatus(Enemy[0], (char*)"지렁이", 150, 150, 5, 5, 50, 30, 0, 5, 0, 1, 0, 100, 10);
 
-	
 	Object* Bullet = new Object;
-	Initialize(Bullet, (char*)"→", (char*)"", (char*)"", Player->TransInfo.Position.x + strlen(Player->Info.Texture[Idle][1]), 15);
+	Initialize(Bullet, (char*)"→", (char*)"", (char*)"", 0, 15);
 
-
-
-	ULONGLONG Time = GetTickCount64();
-	LONGLONG time3 = GetTickCount64();  //** 에너미 제자리 움직임 딜레이
+	ULONGLONG Time = GetTickCount64();   //** 게임 메인 시간 딜레이
+	ULONGLONG Time1 = GetTickCount64();  //** 에너미 제자리 움직임 딜레이
 	
 
 	while (true)
@@ -215,28 +215,54 @@ int main(void)
 		{
 			Time = GetTickCount64();
 			system("cls");
-			
-			UpdateInput(Player);
+
+			SceneManager(Player, Enemy[0], Bullet, Time1);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			/*
+			Bullet->Info.Att = Player->Info.Att / 5;    //** 불렛 데미지
+			UpdateInput(Player, Bullet);
 
 			udo = GetDistance(Player, Enemy[0]);
 			udo1 = GetDirection(Player, Enemy[0]);
 
 			enemymovestage(Enemy[0], Player);
-			if (time3 + 350 < GetTickCount64())
+			if (Time1 + 350 < GetTickCount64())
 			{
 				Enemy[0]->State = Attack;
-				if (time3 + 650 < GetTickCount64())
+				if (Time1 + 650 < GetTickCount64())
 				{
 					Enemy[0]->State = Idle;
-					time3 = GetTickCount64();
+					Time1 = GetTickCount64();
 				}
 			}
 
-			CollisionStage(Player, Enemy[0]);
+			CollisionStage(Player, Enemy[0], Bullet);
 			enemyjumping(Enemy[0]);
 
 			// ** 배경 출력
 			OnDrawText((char*)"========================================================================================================================", 0, 18, 15);
+
+			// ** Bullet 출력
+			if (bulletskill)
+			{
+				OnDrawText(Bullet->Info.Texture[0][0],
+					Bullet->TransInfo.Position.x += 2,
+					Bullet->TransInfo.Position.y + 1,
+					11);
+			}
 
 			// ** Player 출력
 			for (int i = 0; i < 3; ++i)
@@ -261,6 +287,7 @@ int main(void)
 
 
 
+			*/
 		}
 	}
 	return 0;
@@ -298,6 +325,33 @@ char* SetName()
 	return pName;
 }
 
+void SceneManager(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Time1)
+{
+
+	for (int i = 0; i < 6; ++i)
+	{
+		OnDrawText((char*)"∥                     ∥", 3, 18 - i, 15);
+	}
+	OnDrawText((char*)"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 1, 12, 15);
+	OnDrawText((char*)"~~~~~~~~~~~~~~~~~~~~~~~~~~~", 2, 11, 15);
+	OnDrawText((char*)"~~~~~~~~~~~~~~~~~~~~~~~~~", 3, 10, 15);
+	OnDrawText((char*)"~~~~~~~~~~~~~~~~~~~~~~~", 4, 9, 15);
+	OnDrawText((char*)"~~~~~~~~~~~~~~~~~~~~~", 5, 8, 15);
+	OnDrawText((char*)"~~~~~~~~~~~~~~~~~~~", 6, 7, 15);
+	OnDrawText((char*)"ㅣ   ㅣ", 12, 17, 15);
+	OnDrawText((char*)"ㅣ   ㅣ", 12, 16, 15);
+	OnDrawText((char*)"ㅡㅡㅡ", 13, 15, 15);
+	UpdateInput(_Player, _Bullet);
+	for (int i = 0; i < 3; ++i)
+	{
+		OnDrawText(_Player->Info.Texture[_Player->State][i],
+			_Player->TransInfo.Position.x,
+			_Player->TransInfo.Position.y + i,
+			10);
+	}
+	OnDrawText((char*)"========================================================================================================================", 0, 18, 15);
+}
+
 void Initialize(Object* _Object, char* _Texture, char* _Texture2, char* _Texture3, float _PosX, float _PosY, float _PosZ, int _Anim)
 {
 	_Object->Info.Texture[_Anim][0] = _Texture;
@@ -329,7 +383,7 @@ void InitializeStatus(Object* _Object, char* _name, int _HP, int _HPMAX, int _MP
 	_Object->Info.GoldMax = _GoldMax, _Object->Info.GoldMin = _GoldMin;
 }
 
-void UpdateInput(Object* _Object)
+void UpdateInput(Object* _Object, Object* _Bullet)
 {
 	if (GetAsyncKeyState(VK_UP))
 	{
@@ -392,9 +446,13 @@ void UpdateInput(Object* _Object)
 		}
 	}
 
-	if (GetAsyncKeyState(0x43) & 0x0001)
+	if (bulletskill != true)
 	{
-		bulletskill = true;
+		if (GetAsyncKeyState(0x43) & 0x0001)
+		{
+			_Bullet->TransInfo.Position.x = _Object->TransInfo.Position.x + strlen(_Object->Info.Texture[Idle][1]) + 1;
+			bulletskill = true;
+		}
 	}
 }
 
@@ -531,11 +589,27 @@ bool PlayerAttackCollision(Object* _ObjectA, Object* _ObjectB)
 	return false;
 }
 
-void CollisionStage(Object* _ObjectA, Object* _ObjectB)
+void CollisionStage(Object* _ObjectA, Object* _ObjectB, Object* _Bullet)
 {
+	//**불렛 판정
+	if (bulletskill)
+	{
+		if (Collision(_Bullet, _ObjectB))
+		{
+			Glovertime3 = GetTickCount64();
+			collisiontime2 = true;
+			bulletskill = false;
+		}
+		if (_Bullet->TransInfo.Position.x > 119)
+		{
+			bulletskill = false;
+		}
+	}
+
+	//**플레이어가 공격 충돌판정
 	if (playerattackbool && PlayerAttackCollision(_ObjectA, _ObjectB))
 	{
-		time4 = GetTickCount64();
+		Glovertime2 = GetTickCount64();
 		collisiontime1 = true;
 		enemybIsJumpping = true;
 	}
@@ -543,7 +617,7 @@ void CollisionStage(Object* _ObjectA, Object* _ObjectB)
 	//** 충돌판정
 	if (Collision(_ObjectA, _ObjectB))
 	{
-		time2 = GetTickCount64();
+		Glovertime1 = GetTickCount64();
 		collisiontime = true;
 		_ObjectA->State = hit;
 		bIsJumpping = true;
@@ -577,7 +651,7 @@ void CollisionStage(Object* _ObjectA, Object* _ObjectB)
 	{
 		OnDrawText((char*)"100", _ObjectA->TransInfo.Position.x, _ObjectA->TransInfo.Position.y - 2);
 
-		if (time2 + 500 < GetTickCount64())
+		if (Glovertime1 + 500 < GetTickCount64())
 		{
 			collisiontime = false;
 		}
@@ -587,9 +661,19 @@ void CollisionStage(Object* _ObjectA, Object* _ObjectB)
 	{
 		OnDrawText((char*)"100", _ObjectB->TransInfo.Position.x + 2, _ObjectB->TransInfo.Position.y - 2);
 
-		if (time4 + 500 < GetTickCount64())
+		if (Glovertime2 + 500 < GetTickCount64())
 		{
 			collisiontime1 = false;
+		}
+	}
+
+	if (collisiontime2)
+	{
+		OnDrawText((char*)"100", _ObjectB->TransInfo.Position.x + 2, _ObjectB->TransInfo.Position.y - 2);
+
+		if (Glovertime3 + 500 < GetTickCount64())
+		{
+			collisiontime2 = false;
 		}
 	}
 }
