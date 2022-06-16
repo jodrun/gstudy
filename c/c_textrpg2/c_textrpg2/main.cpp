@@ -104,6 +104,8 @@ void LogoScene();
 
 void SceneManager(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Time1);
 
+void StageScene(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Time1);
+
 char* SetName();
 
 void Initialize(Object* _Object, char* _Texture, char* _Texture2, char* _Texture3, float _PosX = 0, float _PosY = 0, float _PosZ = 0, int _Anim = 0);
@@ -327,7 +329,36 @@ char* SetName()
 
 void SceneManager(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Time1)
 {
+	//나무 출력
+	for (int tree = 0; tree < 7; ++tree)
+	{
+		OnDrawText((char*)"#######", 40, 17 - tree, 4);
+	}
+	OnDrawText((char*)"~~~~~~~~~~~~~~~~~", 35, 10, 2);
+	OnDrawText((char*)"~~~~~~~~~~~~~~~", 36, 9, 2);
+	OnDrawText((char*)"~~~~~~~~~~~~~", 37, 8, 2);
+	OnDrawText((char*)"~~~~~~~~~~~", 38, 7, 2);
+	OnDrawText((char*)"~~~~~~~~~", 39, 6, 2);
+	OnDrawText((char*)"~~~~~~~", 40, 5, 2);
+	OnDrawText((char*)"~~~~~", 41, 4, 2);
+	OnDrawText((char*)"~~~", 42, 3, 2);
+	OnDrawText((char*)"~", 43, 2, 2);
 
+	for (int tree = 0; tree < 7; ++tree)
+	{
+		OnDrawText((char*)"#######", 80, 17 - tree, 4);
+	}
+	OnDrawText((char*)"~~~~~~~~~~~~~~~~~", 75, 10, 2);
+	OnDrawText((char*)"~~~~~~~~~~~~~~~", 76, 9, 2);
+	OnDrawText((char*)"~~~~~~~~~~~~~", 77, 8, 2);
+	OnDrawText((char*)"~~~~~~~~~~~", 78, 7, 2);
+	OnDrawText((char*)"~~~~~~~~~", 79, 6, 2);
+	OnDrawText((char*)"~~~~~~~", 80, 5, 2);
+	OnDrawText((char*)"~~~~~", 81, 4, 2);
+	OnDrawText((char*)"~~~", 82, 3, 2);
+	OnDrawText((char*)"~", 83, 2, 2);
+	
+	//상점 출력
 	for (int i = 0; i < 6; ++i)
 	{
 		OnDrawText((char*)"∥                     ∥", 3, 18 - i, 15);
@@ -341,6 +372,25 @@ void SceneManager(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _T
 	OnDrawText((char*)"ㅣ   ㅣ", 12, 17, 15);
 	OnDrawText((char*)"ㅣ   ㅣ", 12, 16, 15);
 	OnDrawText((char*)"ㅡㅡㅡ", 13, 15, 15);
+
+	OnDrawText((char*)"ㅣㅣ", 27, 17, 15);
+	OnDrawText((char*)"ㅣㅣ", 27, 16, 15);
+	OnDrawText((char*)"----------", 24, 15, 15);
+	OnDrawText((char*)"ㅣ", 23, 14, 15);
+	OnDrawText((char*)"ㅣ", 33, 14, 15);
+	OnDrawText((char*)"----------", 24, 13, 15);
+	OnDrawText((char*)"상점", 27, 14, 15);
+	
+	//사냥터 간판 출력
+	OnDrawText((char*)"ㅣㅣ", 110, 17, 15);
+	OnDrawText((char*)"ㅣㅣ", 110, 16, 15);
+	OnDrawText((char*)"----------", 107, 15, 15);
+	OnDrawText((char*)"ㅣ", 106, 14, 15);
+	OnDrawText((char*)"ㅣ", 116, 14, 15);
+	OnDrawText((char*)"----------", 107, 13, 15);
+	OnDrawText((char*)"스테이지", 108, 14, 15);
+	
+	//캐릭터 출력&키입력
 	UpdateInput(_Player, _Bullet);
 	for (int i = 0; i < 3; ++i)
 	{
@@ -349,7 +399,71 @@ void SceneManager(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _T
 			_Player->TransInfo.Position.y + i,
 			10);
 	}
+
+	//바닥출력
 	OnDrawText((char*)"========================================================================================================================", 0, 18, 15);
+
+	//사냥터 넘어가는 코드
+	if (_Player->TransInfo.Position.x > 112)
+	{
+		system("cls");
+        StageScene(_Player, _Enemy, _Bullet, _Time1);
+	}
+
+	//f키입력 코드
+	OnDrawText((char*)"F : 상호작용", 0, 28, 15);
+	if (GetAsyncKeyState(0x46) && _Player->TransInfo.Position.x >= 12 && _Player->TransInfo.Position.x <= (strlen("ㅣ   ㅣ") + 12))
+	{
+		exit(NULL);
+	}
+
+	//esc게임종료 코드
+	OnDrawText((char*)"esc : 게임종료", 0, 29, 15);
+	if (GetAsyncKeyState(VK_ESCAPE))
+	{
+		exit(NULL);
+	}
+}
+
+
+
+
+
+
+void StageScene(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Time1)
+{
+	ULONGLONG Time = GetTickCount64();
+	_Player->TransInfo.Position.x = 10;
+	while (true)
+	{
+		srand((unsigned int)time(NULL));
+		if (Time + 50 < GetTickCount64())
+		{
+			Time = GetTickCount64();
+			system("cls");
+
+
+
+			//엑트3출력
+
+			UpdateInput(_Player, _Bullet);
+			for (int i = 0; i < 3; ++i)
+			{
+				OnDrawText(_Player->Info.Texture[_Player->State][i],
+					_Player->TransInfo.Position.x,
+					_Player->TransInfo.Position.y + i,
+					10);
+			}
+
+			OnDrawText((char*)"========================================================================================================================", 0, 18, 15);
+
+			if (_Player->TransInfo.Position.x < 5)
+			{
+				_Player->TransInfo.Position.x = 110;
+				break;
+			}
+		}
+	}
 }
 
 void Initialize(Object* _Object, char* _Texture, char* _Texture2, char* _Texture3, float _PosX, float _PosY, float _PosZ, int _Anim)
