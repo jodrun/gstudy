@@ -200,7 +200,7 @@ int main(void)
 	Enemy[0]->Info.Texture[Attack][0] = (char*)" ㅡㅡ";
 	Enemy[0]->Info.Texture[Attack][1] = (char*)"   ／";
 	Enemy[0]->Info.Texture[Attack][2] = (char*)"   ㅡㅡ";
-	InitializeStatus(Enemy[0], (char*)"지렁이", 150, 150, 5, 5, 50, 30, 0, 5, 0, 1, 0, 100, 10);
+	InitializeStatus(Enemy[0], (char*)"지렁이", 150, 150, 5, 5, 50, 30, 0, 10, 0, 1, 0, 100, 10);
 
 	Object* Bullet = new Object;
 	Initialize(Bullet, (char*)"→", (char*)"", (char*)"", 0, 15);
@@ -219,77 +219,6 @@ int main(void)
 			system("cls");
 
 			SceneManager(Player, Enemy[0], Bullet, Time1);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			/*
-			Bullet->Info.Att = Player->Info.Att / 5;    //** 불렛 데미지
-			UpdateInput(Player, Bullet);
-
-			udo = GetDistance(Player, Enemy[0]);
-			udo1 = GetDirection(Player, Enemy[0]);
-
-			enemymovestage(Enemy[0], Player);
-			if (Time1 + 350 < GetTickCount64())
-			{
-				Enemy[0]->State = Attack;
-				if (Time1 + 650 < GetTickCount64())
-				{
-					Enemy[0]->State = Idle;
-					Time1 = GetTickCount64();
-				}
-			}
-
-			CollisionStage(Player, Enemy[0], Bullet);
-			enemyjumping(Enemy[0]);
-
-			// ** 배경 출력
-			OnDrawText((char*)"========================================================================================================================", 0, 18, 15);
-
-			// ** Bullet 출력
-			if (bulletskill)
-			{
-				OnDrawText(Bullet->Info.Texture[0][0],
-					Bullet->TransInfo.Position.x += 2,
-					Bullet->TransInfo.Position.y + 1,
-					11);
-			}
-
-			// ** Player 출력
-			for (int i = 0; i < 3; ++i)
-			{
-				OnDrawText(Player->Info.Texture[Player->State][i],
-					Player->TransInfo.Position.x,
-					Player->TransInfo.Position.y + i,
-					10);
-			}
-
-			// ** Enemy 출력
-			for (int i = 0; i < 3; ++i)
-			{
-				OnDrawText(Enemy[0]->Info.Texture[Enemy[0]->State][i],
-					Enemy[0]->TransInfo.Position.x,
-					Enemy[0]->TransInfo.Position.y + i,
-					10);
-			}
-
-			palyerstatusdraw(Player);
-			enemystatusdraw(Enemy[0]);
-
-
-
-			*/
 		}
 	}
 	return 0;
@@ -407,7 +336,9 @@ void SceneManager(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _T
 	if (_Player->TransInfo.Position.x > 112)
 	{
 		system("cls");
+		_Player->TransInfo.Position.x = 10;
         StageScene(_Player, _Enemy, _Bullet, _Time1);
+
 	}
 
 	//f키입력 코드
@@ -427,13 +358,9 @@ void SceneManager(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _T
 
 
 
-
-
-
 void StageScene(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Time1)
 {
 	ULONGLONG Time = GetTickCount64();
-	_Player->TransInfo.Position.x = 10;
 	while (true)
 	{
 		srand((unsigned int)time(NULL));
@@ -442,11 +369,36 @@ void StageScene(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Tim
 			Time = GetTickCount64();
 			system("cls");
 
-
-
-			//엑트3출력
-
+			_Bullet->Info.Att = _Player->Info.Att / 5;          //** 불렛 데미지 초기화
+			_Bullet->Info.ITEMATT = _Player->Info.ITEMATT / 2;  //** 불렛 데미지 초기화
 			UpdateInput(_Player, _Bullet);
+
+			udo = GetDistance(_Player, _Enemy);
+			udo1 = GetDirection(_Player, _Enemy);
+
+			enemymovestage(_Enemy, _Player);
+			if (_Time1 + 350 < GetTickCount64())
+			{
+				_Enemy->State = Attack;
+				if (_Time1 + 650 < GetTickCount64())
+				{
+					_Enemy->State = Idle;
+					_Time1 = GetTickCount64();
+				}
+			}
+
+			CollisionStage(_Player, _Enemy, _Bullet);
+			enemyjumping(_Enemy);
+
+			if (bulletskill)
+			{
+				OnDrawText(_Bullet->Info.Texture[0][0],
+					_Bullet->TransInfo.Position.x += 2,
+					_Bullet->TransInfo.Position.y + 1,
+					11);
+			}
+
+			// ** Player 출력
 			for (int i = 0; i < 3; ++i)
 			{
 				OnDrawText(_Player->Info.Texture[_Player->State][i],
@@ -454,6 +406,18 @@ void StageScene(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Tim
 					_Player->TransInfo.Position.y + i,
 					10);
 			}
+
+			// ** Enemy 출력
+			for (int i = 0; i < 3; ++i)
+			{
+				OnDrawText(_Enemy->Info.Texture[_Enemy->State][i],
+					_Enemy->TransInfo.Position.x,
+					_Enemy->TransInfo.Position.y + i,
+					10);
+			}
+
+			palyerstatusdraw(_Player);
+			enemystatusdraw(_Enemy);
 
 			OnDrawText((char*)"========================================================================================================================", 0, 18, 15);
 
@@ -599,7 +563,7 @@ void enemymove(Object* _enemy, Object* _player)
 		if (_enemy->TransInfo.Position.x <= 65)
 			enemymoving = true;
 	}
-    else if (_enemy->TransInfo.Position.x < 115 && _enemy->TransInfo.Position.x <= 75 && enemymoving == true)
+    else if (_enemy->TransInfo.Position.x < 115 || _enemy->TransInfo.Position.x <= 75 && enemymoving == true)
 	{
 		_enemy->TransInfo.Position.x += 0.2;
 		if (_enemy->TransInfo.Position.x >= 75)
@@ -713,6 +677,13 @@ void CollisionStage(Object* _ObjectA, Object* _ObjectB, Object* _Bullet)
 			Glovertime3 = GetTickCount64();
 			collisiontime2 = true;
 			bulletskill = false;
+
+			if ((_Bullet->Info.Att + _Bullet->Info.ITEMATT) - (_ObjectB->Info.Def / 2) <= 0)
+				--_ObjectB->Info.HP;
+			else
+			{
+				_ObjectB->Info.HP -= ((_Bullet->Info.Att + _Bullet->Info.ITEMATT)) - (_ObjectB->Info.Def / 2);
+			}
 		}
 		if (_Bullet->TransInfo.Position.x > 119)
 		{
@@ -726,6 +697,13 @@ void CollisionStage(Object* _ObjectA, Object* _ObjectB, Object* _Bullet)
 		Glovertime2 = GetTickCount64();
 		collisiontime1 = true;
 		enemybIsJumpping = true;
+
+		if ((_ObjectA->Info.Att + _ObjectA->Info.ITEMATT) - (_ObjectB->Info.Def / 2) <= 0)
+			--_ObjectB->Info.HP;
+		else
+		{
+			_ObjectB->Info.HP -= ((_ObjectA->Info.Att + _ObjectA->Info.ITEMATT)) - (_ObjectB->Info.Def / 2);
+		}
 	}
 
 	//** 충돌판정
@@ -735,6 +713,14 @@ void CollisionStage(Object* _ObjectA, Object* _ObjectB, Object* _Bullet)
 		collisiontime = true;
 		_ObjectA->State = hit;
 		bIsJumpping = true;
+
+		if ((_ObjectB->Info.Att + _ObjectB->Info.ITEMATT) - (_ObjectA->Info.Def) <= 0)
+			--_ObjectA->Info.HP;
+		else
+		{
+			_ObjectA->Info.HP -= ((_ObjectB->Info.Att + _ObjectB->Info.ITEMATT)) - (_ObjectA->Info.Def);
+		}
+
 		if (bIsJumpping)
 		{
 			if (_ObjectA->TransInfo.Position.y > 14 && bIsJumpped == false)
@@ -763,7 +749,7 @@ void CollisionStage(Object* _ObjectA, Object* _ObjectB, Object* _Bullet)
 	
 	if (collisiontime)
 	{
-		OnDrawText((char*)"100", _ObjectA->TransInfo.Position.x, _ObjectA->TransInfo.Position.y - 2);
+		OnDrawText((_ObjectB->Info.Att + _ObjectB->Info.ITEMATT) - (_ObjectA->Info.Def), _ObjectA->TransInfo.Position.x, _ObjectA->TransInfo.Position.y - 2);
 
 		if (Glovertime1 + 500 < GetTickCount64())
 		{
@@ -773,7 +759,7 @@ void CollisionStage(Object* _ObjectA, Object* _ObjectB, Object* _Bullet)
 
 	if (collisiontime1)
 	{
-		OnDrawText((char*)"100", _ObjectB->TransInfo.Position.x + 2, _ObjectB->TransInfo.Position.y - 2);
+		OnDrawText((_ObjectA->Info.Att + _ObjectA->Info.ITEMATT) - (_ObjectB->Info.Def / 2), _ObjectB->TransInfo.Position.x + 2, _ObjectB->TransInfo.Position.y - 2);
 
 		if (Glovertime2 + 500 < GetTickCount64())
 		{
@@ -783,12 +769,42 @@ void CollisionStage(Object* _ObjectA, Object* _ObjectB, Object* _Bullet)
 
 	if (collisiontime2)
 	{
-		OnDrawText((char*)"100", _ObjectB->TransInfo.Position.x + 2, _ObjectB->TransInfo.Position.y - 2);
+		OnDrawText((_Bullet->Info.Att + _Bullet->Info.ITEMATT) - (_ObjectB->Info.Def / 2), _ObjectB->TransInfo.Position.x + 2, _ObjectB->TransInfo.Position.y - 2);
 
 		if (Glovertime3 + 500 < GetTickCount64())
 		{
 			collisiontime2 = false;
 		}
+	}
+
+	//** 적처치
+	if (_ObjectB->Info.HP <= 0)
+	{
+		_ObjectA->Info.EXP += _ObjectB->Info.EXP;
+		_ObjectA->Info.Gold += rand() % (_ObjectB->Info.GoldMax - _ObjectB->Info.GoldMin + 1) + _ObjectB->Info.GoldMin;
+		
+	}
+
+	//** 게임오버
+	if (_ObjectA->Info.HP <= 0)
+	{
+		system("cls");
+		int Width = (120 / 2) - (int)(strlen("	 ::::::::           :::          :::   :::       ::::::::::        ::::::::    :::     :::       ::::::::::       :::::::::") / 2);
+		int Height = 9;
+		
+		OnDrawText((char*)"   ::::::::           :::          :::   :::       ::::::::::        ::::::::    :::     :::       ::::::::::       :::::::::" 
+		OnDrawText((char*)" :+:    :+:        :+: :+:       :+:+: :+:+:      :+:              :+:    :+:   :+:     :+:       :+:              :+:    :+:"
+		OnDrawText((char*)" +:+              +:+   +:+     +:+ +:+:+ +:+     +:+              +:+    +:+   +:+     +:+       +:+              +:+    +:+"
+		OnDrawText((char*)" :#:             +#++:++#++:    +#+  +:+  +#+     +#++:++#         +#+    +:+   +#+     +:+       +#++:++#         +#++:++#:"
+		OnDrawText((char*)"+#+   +#+#      +#+     +#+    +#+       +#+     +#+              +#+    +#+    +#+   +#+        +#+              +#+    +#+"
+		OnDrawText((char*)"#+#    #+#      #+#     #+#    #+#       #+#     #+#              #+#    #+#     #+#+#+#         #+#              #+#    #+#"
+		OnDrawText((char*)"########       ###     ###    ###       ###     ##########        ########        ###           ##########       ###    ###"
+
+
+
+
+
+		Sleep(1000);
 	}
 }
 
