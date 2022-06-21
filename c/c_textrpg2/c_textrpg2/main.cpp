@@ -29,7 +29,7 @@ struct Trasnsform
 
 struct Information
 {
-	char* Texture[4][3];
+	char* Texture[4][5];
 
 	int HP;
 	int HPMAX;
@@ -107,9 +107,11 @@ int levelupexp[10] = { 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 50200
 
 void LogoScene();
 
-void SceneManager(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Time1);
+void SceneManager(Object* _Player, Object* _Enemy, Object* _Enemy1, Object* _Enemy2, Object* _Bullet, ULONGLONG _Time1);
 
-void StageScene(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Time1);
+void StageScene(Object* _Player, Object* _Enemy, Object* _Enemy1, Object* _Enemy2, Object* _Bullet, ULONGLONG _Time1);
+
+void StageScene1(Object* _Player, Object* _Enemy1, Object* _Enemy2, Object* _Bullet, ULONGLONG _Time1);
 
 char* SetName();
 
@@ -147,6 +149,8 @@ bool PlayerAttackCollision(Object* _ObjectA, Object* _ObjectB);
 void CollisionStage(Object* _ObjectA, Object* _ObjectB, Object* _Bullet);
 
 void enemyjumping(Object* _Object);
+
+void enemyjumping1(Object* _Object);
 
 void palyerstatusdraw(Object* _Object);
 
@@ -209,6 +213,20 @@ int main(void)
 	Enemy[0]->Info.Texture[Attack][2] = (char*)"   ㅡㅡ";
 	InitializeStatus(Enemy[0], (char*)"지렁이", 150, 150, 5, 5, 50, 30, 0, 10, 0, 1, 0, 100, 10);
 
+	Initialize(Enemy[1], (char*)"", (char*)"", (char*)"", 70, 13);
+	Enemy[1]->State = Idle;
+	Enemy[1]->Info.Texture[Idle][0] = (char*)"        ＂＂＂＂＂＂＂      ";
+	Enemy[1]->Info.Texture[Idle][1] = (char*)"      ＂              ＂   ";
+	Enemy[1]->Info.Texture[Idle][2] = (char*)"  ＂＂     ; ;     ; ; ＂  ";
+	Enemy[1]->Info.Texture[Idle][3] = (char*)"＂o o  ＂＂  ; ;     ; ; ＂";
+	Enemy[1]->Info.Texture[Idle][4] = (char*)"  ＂＂ ;    ;   ＂＂ ;     ";
+	Enemy[1]->Info.Texture[Attack][0] = (char*)"        ＂＂＂＂＂＂＂      ";
+	Enemy[1]->Info.Texture[Attack][1] = (char*)"      ＂              ＂   ";
+	Enemy[1]->Info.Texture[Attack][2] = (char*)"  ＂＂      ; ;     ; ;＂  ";
+	Enemy[1]->Info.Texture[Attack][3] = (char*)"＂o o  ＂＂   ; ;     ; ;＂";
+	Enemy[1]->Info.Texture[Attack][4] = (char*)"  ＂＂;       ; ＂＂   ;   ";
+	InitializeStatus(Enemy[1], (char*)"왕거미", 500, 500, 20, 20, 250, 200, 0, 50, 0, 10, 0, 500, 50);
+	
 	Object* Bullet = new Object;
 	Initialize(Bullet, (char*)"→", (char*)"", (char*)"", 0, 15);
 
@@ -225,7 +243,7 @@ int main(void)
 			Time = GetTickCount64();
 			system("cls");
 
-			SceneManager(Player, Enemy[0], Bullet, Time1);
+			SceneManager(Player, Enemy[0], Enemy[1], Enemy[2], Bullet, Time1);
 		}
 	}
 	return 0;
@@ -263,7 +281,7 @@ char* SetName()
 	return pName;
 }
 
-void SceneManager(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Time1)
+void SceneManager(Object* _Player, Object* _Enemy, Object* _Enemy1, Object* _Enemy2, Object* _Bullet, ULONGLONG _Time1)
 {
 	//나무 출력
 	for (int tree = 0; tree < 7; ++tree)
@@ -342,14 +360,13 @@ void SceneManager(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _T
 	//사냥터 넘어가는 코드
 	if (_Player->TransInfo.Position.x > 112)
 	{
-		system("cls");
 		_Player->TransInfo.Position.x = 10;
 		_Enemy->TransInfo.Position.x = 70;
 		_Player->Info.HP = _Player->Info.HPMAX;
 		_Player->Info.MP = _Player->Info.MPMAX;
 		_Enemy->Info.HP = _Enemy->Info.HPMAX;
 		_Enemy->Info.MP = _Enemy->Info.HPMAX;
-        StageScene(_Player, _Enemy, _Bullet, _Time1);
+        StageScene(_Player, _Enemy, _Enemy1, _Enemy2, _Bullet, _Time1);
 
 	}
 
@@ -370,7 +387,7 @@ void SceneManager(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _T
 
 
 
-void StageScene(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Time1)
+void StageScene(Object* _Player, Object* _Enemy, Object* _Enemy1, Object* _Enemy2, Object* _Bullet, ULONGLONG _Time1)
 {
 	ULONGLONG Time = GetTickCount64();
 	while (true)
@@ -382,7 +399,7 @@ void StageScene(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Tim
 			Time = GetTickCount64();
 			system("cls");
 
-			_Bullet->Info.Att = _Player->Info.Att / 5;          //** 불렛 데미지 초기화
+			_Bullet->Info.Att = _Player->Info.Att / 3;          //** 불렛 데미지 초기화
 			_Bullet->Info.ITEMATT = _Player->Info.ITEMATT / 2;  //** 불렛 데미지 초기화
 			UpdateInput(_Player, _Bullet);
 
@@ -434,22 +451,6 @@ void StageScene(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Tim
 
 			OnDrawText((char*)"========================================================================================================================", 0, 18, 15);
 
-			if (_Player->TransInfo.Position.x < 5)
-			{
-				_Player->TransInfo.Position.x = 110;
-				break;
-			}
-
-			if (playerdie)
-			{
-				_Player->Info.HP = _Player->Info.HPMAX;
-				_Player->Info.MP = _Player->Info.MPMAX;
-				_Enemy->Info.HP = _Enemy->Info.HPMAX;
-				_Enemy->Info.MP = _Enemy->Info.HPMAX;
-				playerdie = false;
-				break;
-			}
-
 			if (enemydie)
 			{
 				_Enemy = nullptr;
@@ -486,12 +487,163 @@ void StageScene(Object* _Player, Object* _Enemy, Object* _Bullet, ULONGLONG _Tim
 			palyerstatusdraw(_Player);
 
 			OnDrawText((char*)"========================================================================================================================", 0, 18, 15);
+		}
+
+		if (_Player->TransInfo.Position.x < 5)
+		{
+			_Player->TransInfo.Position.x = 110;
+			break;
+		}
+
+		if (playerdie)
+		{
+			_Player->Info.HP = _Player->Info.HPMAX;
+			_Player->Info.MP = _Player->Info.MPMAX;
+			playerdie = false;
+			break;
+		}
+
+		if (_Player->TransInfo.Position.x > 112)
+		{
+			enemybIsJumpping = false;
+			_Player->TransInfo.Position.x = 10;
+			_Enemy1->TransInfo.Position.x = 70;
+			_Player->Info.HP = _Player->Info.HPMAX;
+			_Player->Info.MP = _Player->Info.MPMAX;
+			_Enemy1->Info.HP = _Enemy1->Info.HPMAX;
+			_Enemy1->Info.MP = _Enemy1->Info.MPMAX;
+			StageScene1(_Player, _Enemy1, _Enemy2, _Bullet, _Time1);
+		}
+	}
+}
+
+void StageScene1(Object* _Player, Object* _Enemy1, Object* _Enemy2, Object* _Bullet, ULONGLONG _Time1)
+{
+	ULONGLONG Time = GetTickCount64();
+	while (true)
+	{
+		levelup(_Player);
+		srand((unsigned int)time(NULL));
+		if (Time + 50 < GetTickCount64() && _Enemy1 != nullptr)
+		{
+			Time = GetTickCount64();
+			system("cls");
+
+			_Bullet->Info.Att = _Player->Info.Att / 3;          //** 불렛 데미지 초기화
+			_Bullet->Info.ITEMATT = _Player->Info.ITEMATT / 2;  //** 불렛 데미지 초기화
+			UpdateInput(_Player, _Bullet);
+
+			udo = GetDistance(_Player, _Enemy1);
+			udo1 = GetDirection(_Player, _Enemy1);
+
+			enemymovestage(_Enemy1, _Player);
+			if (_Time1 + 350 < GetTickCount64())
+			{
+				_Enemy1->State = Attack;
+				if (_Time1 + 650 < GetTickCount64())
+				{
+					_Enemy1->State = Idle;
+					_Time1 = GetTickCount64();
+				}
+			}
+
+			CollisionStage(_Player, _Enemy1, _Bullet);
+			enemyjumping1(_Enemy1);
+
+			if (bulletskill)
+			{
+				OnDrawText(_Bullet->Info.Texture[0][0],
+					_Bullet->TransInfo.Position.x += 2,
+					_Bullet->TransInfo.Position.y + 1,
+					11);
+			}
+
+			// ** Player 출력
+			for (int i = 0; i < 3; ++i)
+			{
+				OnDrawText(_Player->Info.Texture[_Player->State][i],
+					_Player->TransInfo.Position.x,
+					_Player->TransInfo.Position.y + i,
+					10);
+			}
+
+			// ** Enemy 출력
+			for (int i = 0; i < 5; ++i)
+			{
+				OnDrawText(_Enemy1->Info.Texture[_Enemy1->State][i],
+					_Enemy1->TransInfo.Position.x,
+					_Enemy1->TransInfo.Position.y + i,
+					10);
+			}
+
+			palyerstatusdraw(_Player);
+			enemystatusdraw(_Enemy1);
+
+			OnDrawText((char*)"========================================================================================================================", 0, 18, 15);
 
 			if (_Player->TransInfo.Position.x < 5)
 			{
 				_Player->TransInfo.Position.x = 110;
 				break;
 			}
+
+			if (playerdie)
+			{
+				_Enemy1->Info.HP = _Enemy1->Info.HPMAX;
+				_Enemy1->Info.MP = _Enemy1->Info.HPMAX;
+				break;
+			}
+
+			if (enemydie)
+			{
+				_Enemy1 = nullptr;
+				enemydie = false;
+			}
+		}
+
+		else if (Time + 50 < GetTickCount64() && _Enemy1 == nullptr)
+		{
+			Time = GetTickCount64();
+			system("cls");
+
+			_Bullet->Info.Att = _Player->Info.Att / 5;          //** 불렛 데미지 초기화
+			_Bullet->Info.ITEMATT = _Player->Info.ITEMATT / 2;  //** 불렛 데미지 초기화
+			UpdateInput(_Player, _Bullet);
+
+			if (bulletskill)
+			{
+				OnDrawText(_Bullet->Info.Texture[0][0],
+					_Bullet->TransInfo.Position.x += 2,
+					_Bullet->TransInfo.Position.y + 1,
+					11);
+			}
+
+			// ** Player 출력
+			for (int i = 0; i < 3; ++i)
+			{
+				OnDrawText(_Player->Info.Texture[_Player->State][i],
+					_Player->TransInfo.Position.x,
+					_Player->TransInfo.Position.y + i,
+					10);
+			}
+
+			palyerstatusdraw(_Player);
+
+			OnDrawText((char*)"========================================================================================================================", 0, 18, 15);
+
+			if (_Player->TransInfo.Position.x < 5)
+			{
+				_Player->TransInfo.Position.x = 110;
+				break;
+			}
+		}
+
+		if (_Player->TransInfo.Position.x > 112)
+		{
+			_Player->TransInfo.Position.x = 10;
+			_Player->Info.HP = _Player->Info.HPMAX;
+			_Player->Info.MP = _Player->Info.MPMAX;
+			StageScene1(_Player, _Enemy1, _Enemy2, _Bullet, _Time1);
 		}
 	}
 }
@@ -718,6 +870,10 @@ bool Collision(Object* _ObjectA, Object* _ObjectB)
 		(_ObjectB->TransInfo.Position.x + _ObjectB->TransInfo.Scale.x) > _ObjectA->TransInfo.Position.x &&
 		_ObjectA->TransInfo.Position.y == _ObjectB->TransInfo.Position.y)
 		return true;
+	else if ((_ObjectA->TransInfo.Position.x + _ObjectA->TransInfo.Scale.x) > _ObjectB->TransInfo.Position.x &&
+		(_ObjectB->TransInfo.Position.x + _ObjectB->TransInfo.Scale.x) > _ObjectA->TransInfo.Position.x &&
+		_ObjectA->TransInfo.Position.y == _ObjectB->TransInfo.Position.y + 2)
+		return true;
 	return false;
 }
 
@@ -729,6 +885,10 @@ bool PlayerAttackCollision(Object* _ObjectA, Object* _ObjectB)
 	if ((_ObjectA->TransInfo.Position.x + _ObjectA->attackscale.Scale.x) > _ObjectB->TransInfo.Position.x &&
 		(_ObjectB->TransInfo.Position.x + _ObjectB->TransInfo.Scale.x) > _ObjectA->TransInfo.Position.x &&
 		_ObjectA->TransInfo.Position.y == _ObjectB->TransInfo.Position.y)
+		return true;
+	else if ((_ObjectA->TransInfo.Position.x + _ObjectA->attackscale.Scale.x) > _ObjectB->TransInfo.Position.x &&
+		(_ObjectB->TransInfo.Position.x + _ObjectB->TransInfo.Scale.x) > _ObjectA->TransInfo.Position.x &&
+		_ObjectA->TransInfo.Position.y == _ObjectB->TransInfo.Position.y + 2)
 		return true;
 	return false;
 }
@@ -895,6 +1055,38 @@ void enemyjumping(Object* _Object)
 	}
 }
 
+
+void enemyjumping1(Object* _Object)
+{
+	if (enemybIsJumpping)
+	{
+		if (_Object->TransInfo.Position.y > 10 && enemybIsJumpped == false)
+		{
+			_Object->TransInfo.Position.y -= 4;
+		}
+		if (_Object->TransInfo.Position.y <= 10)
+		{
+			enemybIsJumpped = true;
+		}
+		if (enemybIsJumpped)
+		{
+			_Object->TransInfo.Position.y++;
+		}
+		if (enemybIsJumpped && _Object->TransInfo.Position.y == 13)
+		{
+			enemybIsJumpped = false;
+			enemybIsJumpping = false;
+		}
+		_Object->TransInfo.Position.x += 2;
+	}
+	if (_Object->TransInfo.Position.y > 13)
+	{
+		_Object->TransInfo.Position.y = 13;
+	}
+}
+
+
+
 void palyerstatusdraw(Object* _Object)
 {
 	OnDrawText((char*)"Name : ", 1, 1, 15), OnDrawText(_Object->Name, strlen("Name :  "), 1, 15);
@@ -935,8 +1127,8 @@ void levelup(Object* _Object)
 	
 	if (leveluptime)
 	{
-		OnDrawText((char*)"!!레벨업!!", _Object->TransInfo.Position.x - 3, _Object->TransInfo.Position.y - 2, 15);
-		if (Glovertime4 + 1500 < GetTickCount64())
+		OnDrawText((char*)"!!레벨업!!", _Object->TransInfo.Position.x - 4, _Object->TransInfo.Position.y - 2, 15);
+		if (Glovertime4 + 3000 < GetTickCount64())
 		{
 			leveluptime = false;
 		}
