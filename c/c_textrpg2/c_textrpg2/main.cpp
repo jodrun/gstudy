@@ -45,7 +45,7 @@ struct Information
 
 	short Level;
 
-	short Gold;
+	USHORT Gold;
 
 	short GoldMin;
 	short GoldMax;
@@ -96,6 +96,10 @@ bool bulletskill = false;
 bool playerdie = false;         // 플레이어 죽고난후 마을로
 bool enemydie = false;
 
+bool weapon = false;
+bool weapon1 = false;
+bool weapon2 = false;
+
 ULONGLONG Glovertime1 = 0;                 // 충돌 했을때 흐른 시간 (딜레이 주기위함)
 ULONGLONG Glovertime2 = 0;
 ULONGLONG Glovertime3 = 0;
@@ -107,7 +111,9 @@ int levelupexp[10] = { 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 50200
 
 void LogoScene();
 
-void SceneManager(Object* _Player, Object* _Enemy, Object* _Enemy1, Object* _Enemy2, Object* _Bullet, ULONGLONG _Time1);
+void SceneManager(Object* _Player, Object* _Enemy, Object* _Enemy1, Object* _Enemy2, Object* _Bullet, ULONGLONG _Time1, Object* _cusor, Object* _weapon, Object* _weapon1, Object* _weapon2);
+
+void StroeScene(Object* _Player, Object* _cusor, Object* _weapon, Object* _weapon1, Object* _weapon2);
 
 void StageScene(Object* _Player, Object* _Enemy, Object* _Enemy1, Object* _Enemy2, Object* _Bullet, ULONGLONG _Time1);
 
@@ -203,7 +209,7 @@ int main(void)
 	Player->TransInfo.Scale = Vector3(
 		(float)strlen(Player->Info.Texture[Idle][1]), 1.0f, 0.0f);
 	// *********************************************************************
-	InitializeStatus(Player, nullptr, 100, 100, 10, 10, 0, 50, 0, 10, 0, 1, 0, 0, 0);
+	InitializeStatus(Player, nullptr, 100, 100, 10, 10, 0, 50, 0, 10, 0, 1, 50000, 0, 0);
 	
 
 	// *************************에너미 초기화****************************
@@ -261,13 +267,30 @@ int main(void)
 	Enemy[2]->Info.Texture[Attack][7] = (char*)"   ;    ↙               (  )    (  )  ↙↖        ↖";
 	Enemy[2]->Info.Texture[Attack][8] = (char*)"  ; __↙         ↙↖____ ( )_____( )↙    ↖__↙￣↖↖";
 	Enemy[2]->Info.Texture[Attack][9] = (char*)"__↙___________↙∏     ∏ ∏      ∏                  ↖";
-	Enemy[2]->Speed = 0.1;
+	Enemy[2]->Speed = 0.2;
 	InitializeStatus(Enemy[2], (char*)"왕도마뱀", 2000, 2000, 500, 500, 1000, 1000, 0, 300, 0, 30, 0, 5000, 500);
 	Enemy[2]->TransInfo.Scale = Vector3(
 		(float)strlen(Enemy[2]->Info.Texture[Idle][8]), 1.0f, 0.0f);
 	// *********************************************************************
 	Object* Bullet = new Object;
 	Initialize(Bullet, (char*)"→", (char*)"", (char*)"", 0, 15);
+	// *********************************************************************
+	Object* cusor = new Object;
+	Initialize(cusor, (char*)"◀", (char*)"", (char*)"", 70, 15);
+	// *********************************************************************
+	Object* weapon[3];
+		for (int i = 0; i < 3; ++i)
+		{
+			weapon[i] = nullptr;
+			weapon[i] = new Object;
+		}
+		Initialize(weapon[0], (char*)"작은검", (char*)"", (char*)"", 60, 10);
+		weapon[0]->Info.ITEMATT = 50;
+		Initialize(weapon[1], (char*)"보통검", (char*)"", (char*)"", 60, 15);
+		weapon[1]->Info.ITEMATT = 500;
+		Initialize(weapon[2], (char*)"좋은검", (char*)"", (char*)"", 60, 20);
+		weapon[2]->Info.ITEMATT = 5000;
+	// *********************************************************************
 
 	ULONGLONG Time = GetTickCount64();   //** 게임 메인 시간 딜레이
 	ULONGLONG Time1 = GetTickCount64();  //** 에너미 제자리 움직임 딜레이
@@ -282,7 +305,7 @@ int main(void)
 			Time = GetTickCount64();
 			system("cls");
 
-			SceneManager(Player, Enemy[0], Enemy[1], Enemy[2], Bullet, Time1);
+			SceneManager(Player, Enemy[0], Enemy[1], Enemy[2], Bullet, Time1, cusor, weapon[0], weapon[1], weapon[2]);
 		}
 	}
 	return 0;
@@ -320,7 +343,7 @@ char* SetName()
 	return pName;
 }
 
-void SceneManager(Object* _Player, Object* _Enemy, Object* _Enemy1, Object* _Enemy2, Object* _Bullet, ULONGLONG _Time1)
+void SceneManager(Object* _Player, Object* _Enemy, Object* _Enemy1, Object* _Enemy2, Object* _Bullet, ULONGLONG _Time1, Object* _cusor, Object* _weapon, Object* _weapon1, Object* _weapon2)
 {
 	//나무 출력
 	for (int tree = 0; tree < 7; ++tree)
@@ -415,7 +438,7 @@ void SceneManager(Object* _Player, Object* _Enemy, Object* _Enemy1, Object* _Ene
 	OnDrawText((char*)"F : 상호작용", 0, 28, 15);
 	if (GetAsyncKeyState(0x46) && _Player->TransInfo.Position.x >= 12 && _Player->TransInfo.Position.x <= (strlen("ㅣ   ㅣ") + 12))
 	{
-		exit(NULL);
+		StroeScene(_Player, _cusor, _weapon, _weapon1, _weapon2);
 	}
 
 	//esc게임종료 코드
@@ -424,6 +447,128 @@ void SceneManager(Object* _Player, Object* _Enemy, Object* _Enemy1, Object* _Ene
 	{
 		system("cls");
 		exit(NULL);
+	}
+}
+
+void StroeScene(Object* _Player, Object* _cusor, Object* _weapon, Object* _weapon1, Object* _weapon2)
+{
+	ULONGLONG Time = GetTickCount64();
+	while (true)
+	{
+		srand((unsigned int)time(NULL));
+		if (Time + 50 < GetTickCount64())
+		{
+			Time = GetTickCount64();
+			system("cls");
+
+			if (GetAsyncKeyState(VK_UP))
+			{
+				if (_cusor->TransInfo.Position.y <= 10)
+					_cusor->TransInfo.Position.y = 10;
+				else
+					_cusor->TransInfo.Position.y -= 5;
+			}
+			if (GetAsyncKeyState(VK_DOWN))
+			{
+				if (_cusor->TransInfo.Position.y >= 20)
+					_cusor->TransInfo.Position.y = 20;
+				else
+				    _cusor->TransInfo.Position.y += 5;
+			}
+			if (GetAsyncKeyState(VK_LEFT))
+			{
+				if (_cusor->TransInfo.Position.x <= 50)
+					_cusor->TransInfo.Position.x = 50;
+				else
+					_cusor->TransInfo.Position.x -= 20;
+			}
+			if (GetAsyncKeyState(VK_RIGHT))
+			{
+
+				if (_cusor->TransInfo.Position.x >= 70)
+					_cusor->TransInfo.Position.x = 70;
+				else
+					_cusor->TransInfo.Position.x += 20;
+			}
+			if (GetAsyncKeyState(VK_SPACE))
+			{
+				if (_Player->Info.Gold > 200 && _cusor->TransInfo.Position.y == 10 && _cusor->TransInfo.Position.x == 70 && weapon == false)
+				{
+					_weapon->TransInfo.Position.x = 40;
+					_Player->Info.Gold -= 200;
+					weapon = true;
+				}
+				else if (_Player->Info.Gold > 2000 && _cusor->TransInfo.Position.y == 15 && _cusor->TransInfo.Position.x == 70 && weapon1 == false)
+				{
+					_weapon1->TransInfo.Position.x = 40;
+					_Player->Info.Gold -= 2000;
+					weapon1 = true;
+				}
+				else if (_Player->Info.Gold > 20000 && _cusor->TransInfo.Position.y == 20 && _cusor->TransInfo.Position.x == 70 && weapon2 == false)
+				{
+					_weapon2->TransInfo.Position.x = 40;
+					_Player->Info.Gold -= 20000;
+					weapon2 = true;
+				}
+
+				if (_cusor->TransInfo.Position.y == 10 && _cusor->TransInfo.Position.x == 50 && weapon)
+				{
+					_Player->Info.ITEMATT = _weapon->Info.ITEMATT;
+				}
+				else if (_cusor->TransInfo.Position.y == 15 && _cusor->TransInfo.Position.x == 50 && weapon1)
+				{
+					_Player->Info.ITEMATT = _weapon1->Info.ITEMATT;
+				}
+				else if (_cusor->TransInfo.Position.y == 20 && _cusor->TransInfo.Position.x == 50 && weapon2)
+				{
+					_Player->Info.ITEMATT = _weapon2->Info.ITEMATT;
+				}
+			}
+				
+			if (GetAsyncKeyState(0x43) & 0x8000)
+			{
+				system("cls");
+				break;
+			}
+
+			
+			OnDrawText(_cusor->Info.Texture[0][0], _cusor->TransInfo.Position.x, _cusor->TransInfo.Position.y, 10);
+			OnDrawText("――――", 60, 9, 15);
+			OnDrawText("｜     ｜", 60, 10, 15);
+			OnDrawText("｜     ㅣ", 60, 11, 15);
+			OnDrawText(" ――――", 60, 12, 15);
+			OnDrawText("――――", 60, 14, 15);
+			OnDrawText("｜     ｜", 60, 15, 15);
+			OnDrawText("｜     ㅣ", 60, 16, 15);
+			OnDrawText(" ――――", 60, 17, 15);
+			OnDrawText("――――", 60, 19, 15);
+			OnDrawText("｜     ｜", 60, 20, 15);
+			OnDrawText("｜     ㅣ", 60, 21, 15);
+			OnDrawText(" ――――", 60, 22, 15);
+			OnDrawText("――――", 40, 9, 10);
+			OnDrawText("｜     ｜", 40, 10, 10);
+			OnDrawText("｜     ㅣ", 40, 11, 10);
+			OnDrawText(" ――――", 40, 12, 10);
+			OnDrawText("――――", 40, 14, 10);
+			OnDrawText("｜     ｜", 40, 15, 10);
+			OnDrawText("｜     ㅣ", 40, 16, 10);
+			OnDrawText(" ――――", 40, 17, 10);
+			OnDrawText("――――", 40, 19, 10);
+			OnDrawText("｜     ｜", 40, 20, 10);
+			OnDrawText("｜     ㅣ", 40, 21, 10);
+			OnDrawText(" ――――", 40, 22, 10);
+			OnDrawText(200, 60, 11, 10);
+			OnDrawText(2000, 60, 16, 10);
+			OnDrawText(20000, 60, 21, 10);
+			OnDrawText(_weapon->Info.Texture[0][0], _weapon->TransInfo.Position.x, _weapon->TransInfo.Position.y, 15);
+			OnDrawText(_weapon1->Info.Texture[0][0], _weapon1->TransInfo.Position.x, _weapon1->TransInfo.Position.y, 15);
+			OnDrawText(_weapon2->Info.Texture[0][0], _weapon2->TransInfo.Position.x, _weapon2->TransInfo.Position.y, 15);
+			OnDrawText("Gold : ", 100, 1, 10);
+			OnDrawText("ITEMATT : ", 1, 1, 10);
+			OnDrawText(_Player->Info.Gold, 100 + strlen("Gold : "), 1, 10);
+			OnDrawText(_Player->Info.ITEMATT, 1 + strlen("ITEMATT : "), 1, 10);
+			OnDrawText("C : 뒤로가기", 0, 29, 15);
+		}
 	}
 }
 
