@@ -29,7 +29,7 @@ struct Trasnsform
 
 struct Information
 {
-	char* Texture[4][10];
+	char* Texture[5][10];
 
 	int HP;
 	int HPMAX;
@@ -81,7 +81,6 @@ const int Idle = 0;
 const int Attack = 1;
 const int Down = 2;
 const int hit = 3;
-const int Move = 4;
  
 float udo = 0;                  // 따라가기 (길이) 변수
 Vector3 udo1 = { 0, 0, 0 };     // 따라가기 (방향) 변수
@@ -95,6 +94,7 @@ bool playerattackbool = false;
 bool bulletskill = false;
 bool playerdie = false;         // 플레이어 죽고난후 마을로
 bool enemydie = false;
+bool legmove = false;
 
 bool weapon = false;
 bool weapon1 = false;
@@ -333,7 +333,9 @@ char* SetName()
 {
 	char Buffer[128] = "";
 
-	OnDrawText((char*)"이름입력 : ", 50, 14, 15);
+	OnDrawText((char*)"★★★★★★★★★★★★★★★★★★★★★★★★★★★★", 55 - strlen("★★★★★★★★★★★★★★★★★★★★★★★★★★★★") / 2, 10, 10);
+	OnDrawText((char*)"★★★★★★★★★★★★★★★★★★★★★★★★★★★★", 55 - strlen("★★★★★★★★★★★★★★★★★★★★★★★★★★★★") / 2, 20, 10);
+	OnDrawText((char*)"이름입력 : ", 50, 15, 15);
 	cin >> Buffer;
 
 	char* pName = new char[strlen(Buffer) + 1];
@@ -1027,8 +1029,9 @@ void UpdateInput(Object* _Object, Object* _Bullet)
 		_Object->TransInfo.Position.x -= 2;
 
 	if (GetAsyncKeyState(VK_RIGHT))
+	{
 		_Object->TransInfo.Position.x += 2;
-
+	}
 	if (GetAsyncKeyState(VK_SPACE))
 	{
 		_Object->State = Attack;
