@@ -21,7 +21,7 @@ void Logo::Update()
 {
 	Count++;
 
-	if(Count >= 50)
+	if(Count >= 2)
 		SceneManager::GetInstance()->SetScene(SCENEID::MENU);
 }
 

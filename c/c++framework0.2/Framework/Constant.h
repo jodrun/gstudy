@@ -1,0 +1,27 @@
+#pragma once
+
+// DWORD : UNSIGNED LONG
+// 00000000 00000000 00000000 00000000
+const DWORD KEY_UP      = 1;
+const DWORD KEY_DOWN    = 2;
+const DWORD KEY_LEFT    = 4;
+const DWORD KEY_RIGHT   = 8;
+const DWORD KEY_SPACE   = 16;
+const DWORD KEY_RETURN  = 32;
+const DWORD KEY_ESCAPE  = 64;
+//const DWORD KEY_UP      = 128;
+//const DWORD KEY_UP      = 256;
+//const DWORD KEY_UP      = 512;
+//const DWORD KEY_UP      = 1024;
+
+
+//0000 0001 = UP
+//0000 0010 = DOWN
+//0000 0100 = LEFT
+//0000 1000 = RIGHT
+//0001 0000 = SPACE
+//0010 0000 = ENTER
+//0100 0000 = ESCAPE
+//1000 0000 = ?
+
+//0000 0111 = 3개 동시에 누른거
