@@ -1,10 +1,22 @@
 #pragma once
 #include "MainUpdate.h"
 
-
-
 int main(void)
 {
+	//연산자 오버로딩 & 방향구하기
+	//v1 에서 v2를 빼면 v1로가는 방향이 나옴
+	//v2 에서 v1을 빼면 v2로가는 방향이 나옴
+	Vector3 V1 = Vector3(1.0f, 1.0f);
+	Vector3 V2 = Vector3(10.0f, 10.0f);
+
+	Vector3 V3 = V1 - V2;    //v1으로 가는방향 x : -9.0, y : -9.0  
+
+	cout << "X : " << V3.x << endl;
+	cout << "Y : " << V3.y << endl;
+	
+	
+
+	/*
 	MainUpdate Main;
 	Main.Start();
 
@@ -21,6 +33,8 @@ int main(void)
 			Main.Render();
 		}
 	}
+	*/
+	
 
 	return 0;
 }
