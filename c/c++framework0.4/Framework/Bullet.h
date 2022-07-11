@@ -11,7 +11,10 @@ public:
 	virtual void Render()override;
 	virtual void Release()override;
 public:
-	void SetIndex(int _Index) { Index = _Index; }
+	void SetIndex(int _Index) 
+	{ 
+		Index = _Index; 
+	}
 public:
 	Bullet();
 	virtual ~Bullet();
