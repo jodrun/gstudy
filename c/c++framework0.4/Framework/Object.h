@@ -12,9 +12,9 @@ public:
 	virtual void Render()PURE;
 	virtual void Release()PURE;
 public:
-	Transform GetTransform() const { return Info; }                 // 불렛,에너미,플레이어 트렌스폼 사용 하기 위함 (이거 있으면 밑에꺼 없어도 괜찮음) 
+	Transform GetTransform() const { return Info; }
 
-	Vector3 GetPosition() const { return Info.Position; }           // 불렛,에너미,플레이어 info.position 사용 하기위한 함수
+	Vector3 GetPosition() const { return Info.Position; } 
 	void SetPosition(Vector3 _Position) { Info.Position = _Position; }
 	void SetPosition(float _x, float _y) { Info.Position = Vector3(_x, _y); }
 

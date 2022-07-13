@@ -73,9 +73,7 @@ void ObjectManager::Update()
 				pPlayer->GetTransform(), 
 				pBullet[i]->GetTransform()))
 			{
-				CursorManager::GetInstance()->SetCursorPosition(0.0f, 0.0f, (char*)"충돌입니다.");
-				delete pBullet[i];        // 충돌후 불렛 삭제
-				pBullet[i] = nullptr;	 // 충돌후 불렛 삭제
+				CursorManager::GetInstance()->WriteBuffer(0.0f, 0.0f, (char*)"충돌입니다.");
 			}
 		}
 
