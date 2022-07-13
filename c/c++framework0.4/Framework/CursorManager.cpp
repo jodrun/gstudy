@@ -25,12 +25,12 @@ void CursorManager::CreateBuffer(const int& _Width, const int& _Height)
 
 	SMALL_RECT Rect = { 0, 0, SHORT(_Width), SHORT(_Height) };
 
-	HBuffer[0] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);   // 버퍼 0번
+	HBuffer[0] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);   // 버퍼 0번 생성
 	SetConsoleScreenBufferSize(HBuffer[0], Size);
 	SetConsoleWindowInfo(HBuffer[0], TRUE, &Rect);
 	SetConsoleCursorInfo(HBuffer[0], &CursorInfo);
 
-	HBuffer[1] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);   // 버퍼 1번
+	HBuffer[1] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);   // 버퍼 1번 생성
 	SetConsoleScreenBufferSize(HBuffer[1], Size);
 	SetConsoleWindowInfo(HBuffer[1], TRUE, &Rect);
 	SetConsoleCursorInfo(HBuffer[1], &CursorInfo);
