@@ -4,6 +4,8 @@
 #include "Enemy.h"
 #include "CollisionManager.h"
 #include "CursorManager.h"
+#include "MathManager.h"
+#include "ObjectFactory.h"
 
 ObjectManager* ObjectManager::Instance = nullptr;
 
@@ -25,15 +27,13 @@ void ObjectManager::CreateObject(int _StateIndex)
 	{
 		if (pBullet[i] == nullptr)
 		{
-			pBullet[i] = new Bullet;
-			pBullet[i]->Start();
-			pBullet[i]->SetPosition(74.0f, 1.0f);
+			pBullet[i] = ObjectFactory::CreateBullet(Vector3(74.0f, 1.0f));
 
 			switch (_StateIndex)
 			{
 			case 0:
 			{
-				Vector3 Direction = pPlayer->GetPosition() - pBullet[i]->GetPosition();
+				Vector3 Direction = MathManager::GetDirection(pBullet[i]->GetPosition(), pPlayer->GetPosition());
 				pBullet[i]->SetDirection(Direction);
 				((Bullet*)pBullet[i])->SetIndex(_StateIndex);
 			}
@@ -50,11 +50,8 @@ void ObjectManager::CreateObject(int _StateIndex)
 
 void ObjectManager::Start()
 {
-	pPlayer = new Player;
-	pPlayer->Start();
-
-	pEnemy = new Enemy;
-	pEnemy->Start();
+	pPlayer = ObjectFactory::CreatePlayer();
+	pEnemy = ObjectFactory::CreateEnemy();
 }
 
 void ObjectManager::Update()
@@ -65,7 +62,7 @@ void ObjectManager::Update()
 	int result = 0;
 	for (int i = 0; i < 128; ++i)
 	{
-		if (pBullet[i])
+		if (pBullet[i])               // if문 사용하는 이유는 createobject가 실행이 안됬으면 계속 nullptr 이기 때문에 오류나는거임
 		{
 			result = pBullet[i]->Update();
 
@@ -74,8 +71,8 @@ void ObjectManager::Update()
 				pBullet[i]->GetTransform()))
 			{
 				CursorManager::GetInstance()->WriteBuffer(0.0f, 0.0f, (char*)"충돌입니다.");
-				delete pBullet[i];		 // 충돌후 불렛삭제
-				pBullet[i] = nullptr;    // 충돌후 불렛삭제
+				//delete pBullet[i];		 // 충돌후 불렛삭제
+				//pBullet[i] = nullptr;    // 충돌후 불렛삭제
 			}
 		}
 
