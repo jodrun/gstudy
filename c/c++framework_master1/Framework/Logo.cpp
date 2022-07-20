@@ -3,9 +3,16 @@
 #include "InputManager.h"
 #include "CursorManager.h"
 
-Logo::Logo()
+Logo::Logo() : Color(0), Length(0), MaxSize(0), Time(0)
 {
-
+	for (int i = 0; i < 8; ++i)
+	{
+		Buffer[i] = nullptr;
+	}
+	for (int i = 0; i < 4; ++i)
+	{
+		Buffer2022[i] = nullptr;
+	}
 }
 
 Logo::~Logo()
@@ -16,33 +23,23 @@ Logo::~Logo()
 
 void Logo::Start()
 {
-	Buffer[0] = (char*)"LLLLLLLLLLL                                                                   ";
-	Buffer[1] = (char*)"L:::::::::L                                                                   ";
-	Buffer[2] = (char*)"L:::::::::L                                                                   ";
-	Buffer[3] = (char*)"LL:::::::LL                                                                   ";
-	Buffer[4] = (char*)"  L:::::L                  ooooooooooo      ggggggggg   ggggg   ooooooooooo   ";
-	Buffer[5] = (char*)"  L:::::L                oo:::::::::::oo   g:::::::::ggg::::g oo:::::::::::oo ";
-	Buffer[6] = (char*)"  L:::::L               o:::::::::::::::o g:::::::::::::::::go:::::::::::::::o";
-	Buffer[7] = (char*)"  L:::::L               o:::::ooooo:::::og::::::ggggg::::::ggo:::::ooooo:::::o";
-	Buffer[8] = (char*)"  L:::::L               o::::o     o::::og:::::g     g:::::g o::::o     o::::o";
-	Buffer[9] = (char*)"  L:::::L               o::::o     o::::og:::::g     g:::::g o::::o     o::::o";
-	Buffer[10] = (char*)"  L:::::L               o::::o     o::::og:::::g     g:::::g o::::o     o::::o";
-	Buffer[11] = (char*)"  L:::::L         LLLLLLo::::o     o::::og::::::g    g:::::g o::::o     o::::o";
-	Buffer[12] = (char*)"LL:::::::LLLLLLLLL:::::Lo:::::ooooo:::::og:::::::ggggg:::::g o:::::ooooo:::::o";
-	Buffer[13] = (char*)"L::::::::::::::::::::::Lo:::::::::::::::o g::::::::::::::::g o:::::::::::::::o";
-	Buffer[14] = (char*)"L::::::::::::::::::::::L oo:::::::::::oo   gg::::::::::::::g  oo:::::::::::oo ";
-	Buffer[15] = (char*)"LLLLLLLLLLLLLLLLLLLLLLLL   ooooooooooo       gggggggg::::::g    ooooooooooo   ";
-	Buffer[16] = (char*)"                                                     g:::::g                  ";
-	Buffer[17] = (char*)"                                         gggggg      g:::::g                  ";
-	Buffer[18] = (char*)"                                         g:::::gg   gg:::::g                  ";
-	Buffer[19] = (char*)"                                          g::::::ggg:::::::g                  ";
-	Buffer[20] = (char*)"                                           gg:::::::::::::g                   ";
-	Buffer[21] = (char*)"                                             ggg::::::ggg                     ";
-	Buffer[22] = (char*)"                                                gggggg                 	   ";
+	Buffer[0] = (char*)"88888888888 8888888888 Y88b   d88P 88888888888       .d8888b.         d8888 888b     d888 8888888888";
+	Buffer[1] = (char*)"    888     888         Y88b d88P      888          d88P  Y88b       d88888 8888b   d8888 888       ";
+	Buffer[2] = (char*)"    888     888          Y88o88P       888          888    888      d88P888 88888b.d88888 888       ";
+	Buffer[3] = (char*)"    888     8888888       Y888P        888          888            d88P 888 888Y88888P888 8888888   ";
+	Buffer[4] = (char*)"    888     888           d888b        888          888  88888    d88P  888 888 Y888P 888 888       ";
+	Buffer[5] = (char*)"    888     888          d88888b       888          888    888   d88P   888 888  Y8P  888 888       ";
+	Buffer[6] = (char*)"    888     888         d88P Y88b      888          Y88b  d88P  d8888888888 888   '   888 888       ";
+	Buffer[7] = (char*)"    888     8888888888 d88P   Y88b     888           'Y8888P88 d88P     888 888       888 8888888888";
 
-	Length = strlen("L::::::::::::::::::::::L oo:::::::::::oo   gg::::::::::::::g  oo:::::::::::oo ");
+	Buffer2022[0] = (char*)" ___ ___ ___ ___ ";
+	Buffer2022[1] = (char*)"|_  |   |_  |_  |";
+	Buffer2022[2] = (char*)"|  _| | |  _|  _|";
+	Buffer2022[3] = (char*)"|___|___|___|___|";
 
-	MaxSize = 23;
+	Length = strlen("88888888888 8888888888 Y88b   d88P 88888888888       .d8888b.         d8888 888b     d888 8888888888");
+
+	MaxSize = 8;
 
 	Color = 15;
 
@@ -58,9 +55,9 @@ void Logo::Update()
 		Color = rand() % 7 + 9;
 	}
 
-	DWORD dwKey = InputManager::GetInstance()->GetKey();
+	DWORD dwKey1 = InputManager::GetInstance()->GetKey1();
 
-	if (dwKey & KEY_RETURN)
+	if (dwKey1 & KEY_RETURN)
 		SceneManager::GetInstance()->SetScene(SCENEID::MENU);
 }
 
@@ -68,6 +65,9 @@ void Logo::Render()
 {
 	for (int i = 0; i < MaxSize ; ++i)
 		CursorManager::GetInstance()->WriteBuffer((150.0f / 2) - (Length / 2), 5.0f + i, Buffer[i], Color);
+
+	for (int i = 0; i < 4; ++i)
+		CursorManager::GetInstance()->WriteBuffer((150.0f / 2) - (17 / 2), 32.0f + i, Buffer2022[i], 15);
 }
 
 void Logo::Release()

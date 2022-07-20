@@ -14,9 +14,12 @@ public:
 	}
 private:
 	DWORD dwKey;
+	DWORD dwKey1;
+	bool PressedKey[8];
 public:
 	void CheckKey();
 	DWORD GetKey() { return dwKey; }
+	DWORD GetKey1() { return dwKey1; }
 private:
 	InputManager();
 public:

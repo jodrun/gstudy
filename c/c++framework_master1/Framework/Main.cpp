@@ -6,7 +6,7 @@
 
 int main(void)
 {
-	system("title È«±æµ¿ : °ÔÀÓÀÌ¸§");
+	system("title È²Àç°© : ¶¥µû¸Ô±â");
 	system("mode con cols=150 lines=40");
 
 	MainUpdate Main;

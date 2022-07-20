@@ -6,8 +6,8 @@ class Logo : public Scene
 private:
 	int Length;
 	int MaxSize;
-	char* Buffer[32];
-
+	char* Buffer[8];
+	char* Buffer2022[4];
 	int Color;
 	ULONGLONG Time;
 public:
