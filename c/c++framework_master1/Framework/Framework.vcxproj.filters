@@ -67,6 +67,15 @@
     <Filter Include="소스 파일\99. Manager\ObjectFactory">
       <UniqueIdentifier>{5e32685a-2bb2-4a3b-a9a5-293dd9162fb4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\02. Scene\Stage\Easy">
+      <UniqueIdentifier>{4d70588c-af2f-461c-a756-4367d1f6a341}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\02. Scene\Stage\Normal">
+      <UniqueIdentifier>{e6d9d61d-1182-4753-a936-95bd87fa3ce2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\02. Scene\Stage\Hard">
+      <UniqueIdentifier>{6bddca51-b21b-4650-be90-e107c9ccb5b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -110,6 +119,15 @@
     </ClCompile>
     <ClCompile Include="CursorManager.cpp">
       <Filter>소스 파일\99. Manager\CursorManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Easy.cpp">
+      <Filter>소스 파일\02. Scene\Stage\Easy</Filter>
+    </ClCompile>
+    <ClCompile Include="Normal.cpp">
+      <Filter>소스 파일\02. Scene\Stage\Normal</Filter>
+    </ClCompile>
+    <ClCompile Include="Hard.cpp">
+      <Filter>소스 파일\02. Scene\Stage\Hard</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +190,15 @@
     </ClInclude>
     <ClInclude Include="ObjectFactory.h">
       <Filter>소스 파일\99. Manager\ObjectFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="Easy.h">
+      <Filter>소스 파일\02. Scene\Stage\Easy</Filter>
+    </ClInclude>
+    <ClInclude Include="Normal.h">
+      <Filter>소스 파일\02. Scene\Stage\Normal</Filter>
+    </ClInclude>
+    <ClInclude Include="Hard.h">
+      <Filter>소스 파일\02. Scene\Stage\Hard</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

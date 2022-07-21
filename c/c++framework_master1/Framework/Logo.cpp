@@ -3,7 +3,7 @@
 #include "InputManager.h"
 #include "CursorManager.h"
 
-Logo::Logo() : Color(0), Length(0), MaxSize(0), Time(0)
+Logo::Logo() : Color(0), Length(0), MaxSize(0), Time(0), ColorPressEnter(0), TimeEnter(0), BufferPressEnter(nullptr)
 {
 	for (int i = 0; i < 8; ++i)
 	{
@@ -32,6 +32,8 @@ void Logo::Start()
 	Buffer[6] = (char*)"    888     888         d88P Y88b      888          Y88b  d88P  d8888888888 888   '   888 888       ";
 	Buffer[7] = (char*)"    888     8888888888 d88P   Y88b     888           'Y8888P88 d88P     888 888       888 8888888888";
 
+	BufferPressEnter = (char*)"PRESS ENTER";
+
 	Buffer2022[0] = (char*)" ___ ___ ___ ___ ";
 	Buffer2022[1] = (char*)"|_  |   |_  |_  |";
 	Buffer2022[2] = (char*)"|  _| | |  _|  _|";
@@ -43,7 +45,11 @@ void Logo::Start()
 
 	Color = 15;
 
+	ColorPressEnter = 15;
+
 	Time = GetTickCount64();
+
+	TimeEnter = GetTickCount64();
 }
 
 void Logo::Update()
@@ -53,6 +59,18 @@ void Logo::Update()
 		Time = GetTickCount64();
 
 		Color = rand() % 7 + 9;
+	}
+
+	if (TimeEnter + 500 < GetTickCount64())
+	{
+		ColorPressEnter = 0;
+	}
+
+	if (TimeEnter + 1000 < GetTickCount64())
+	{
+		TimeEnter = GetTickCount64();
+
+		ColorPressEnter = 15;
 	}
 
 	DWORD dwKey1 = InputManager::GetInstance()->GetKey1();
@@ -68,6 +86,8 @@ void Logo::Render()
 
 	for (int i = 0; i < 4; ++i)
 		CursorManager::GetInstance()->WriteBuffer((150.0f / 2) - (17 / 2), 32.0f + i, Buffer2022[i], 15);
+	
+		CursorManager::GetInstance()->WriteBuffer((150.0f / 2) - (11 / 2), 26.0f, BufferPressEnter, ColorPressEnter);
 }
 
 void Logo::Release()
