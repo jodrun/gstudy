@@ -76,6 +76,9 @@
     <Filter Include="소스 파일\02. Scene\Stage\Hard">
       <UniqueIdentifier>{6bddca51-b21b-4650-be90-e107c9ccb5b9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\01. Object\Map">
+      <UniqueIdentifier>{10012ed7-02f4-4983-896b-82b469131c14}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -128,6 +131,9 @@
     </ClCompile>
     <ClCompile Include="Hard.cpp">
       <Filter>소스 파일\02. Scene\Stage\Hard</Filter>
+    </ClCompile>
+    <ClCompile Include="Map.cpp">
+      <Filter>소스 파일\01. Object\Map</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -199,6 +205,9 @@
     </ClInclude>
     <ClInclude Include="Hard.h">
       <Filter>소스 파일\02. Scene\Stage\Hard</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.h">
+      <Filter>소스 파일\01. Object\Map</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

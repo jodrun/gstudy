@@ -2,6 +2,7 @@
 #include "Bullet.h"
 #include "InputManager.h"
 #include "CursorManager.h"
+#include "ObjectManager.h"
 
 Player::Player()
 {
@@ -24,29 +25,41 @@ int Player::Update()
 {
 	DWORD dwKey = InputManager::GetInstance()->GetKey();
 
-	if (dwKey & KEY_UP)
-		Info.Position.y--;
+	if (Info.Position.y >= 3.0)
+	{
+		if (dwKey & KEY_UP)
+			Info.Position.y--;
+	}
 
-	if (dwKey & KEY_DOWN)
-		Info.Position.y++;
+	if (Info.Position.y <= 36.0)
+	{
+		if (dwKey & KEY_DOWN)
+			Info.Position.y++;
+	}
 
-	if (dwKey & KEY_LEFT)
-		Info.Position.x -= 2;
+	if (Info.Position.x >= 7.0)
+	{
+		if (dwKey & KEY_LEFT)
+			Info.Position.x -= 2;
+	}
 
-	if (dwKey & KEY_RIGHT)
-		Info.Position.x += 2;
+	if (Info.Position.x <= 113.0)
+	{
+		if (dwKey & KEY_RIGHT)
+			Info.Position.x += 2;
+	}
 
-	//if (dwKey & KEY_SPACE)
-		//ObjectManager::GetInstance()->CreateObject();
+	if (dwKey & KEY_SPACE)
+		
 
-	//if (dwKey & KEY_ESCAPE)
-		//Info.Position = Vector3(0.0f, 0.0f);
+	if (dwKey & KEY_ESCAPE)
+		Info.Position = Vector3(0.0f, 0.0f);
 	return 0;
 }
 
 void Player::Render()
 {
-	CursorManager::GetInstance()->WriteBuffer(Info.Position, (char*)"¡â");
+	CursorManager::GetInstance()->WriteBuffer(Info.Position, (char*)"¡Þ");
 }
 
 void Player::Release()

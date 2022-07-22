@@ -50,4 +50,13 @@ public:
 
 		return pObject;
 	}
+
+	static Object* CreateMap()
+	{
+		Object* pObject = new Map;
+
+		pObject->Start();
+
+		return pObject;
+	}
 };

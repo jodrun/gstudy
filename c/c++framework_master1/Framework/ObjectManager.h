@@ -17,6 +17,7 @@ private:
 	Object* pBullet[128];
 	Object* pPlayer;
 	Object* pEnemy;
+	Object* pMap;
 public:
 	void CreateObject(int _StateIndex);
 	void Start();
