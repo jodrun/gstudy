@@ -18,6 +18,8 @@ int main(void)
 	{
 		if (Time <= GetTickCount64())
 		{
+			system("cls");
+
 			Main.Update();
 			Main.Render();
 

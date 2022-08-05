@@ -11,3 +11,6 @@ using namespace std;
 #include "Enum.h"
 #include "Constant.h"
 #include "Struct.h"
+
+#define MAPX 21
+#define MAPY 21

@@ -36,7 +36,6 @@ void CursorManager::CreateBuffer(const int& _Width, const int& _Height)
 	SetConsoleCursorInfo(HBuffer[1], &CursorInfo);
 }
 
-
 // ** 버퍼에 쓰기
 void CursorManager::WriteBuffer(float _x, float _y, char* _str, int _Color)
 {
