@@ -12,5 +12,5 @@ using namespace std;
 #include "Constant.h"
 #include "Struct.h"
 
-#define MAPX 21
-#define MAPY 21
+#define MAPX 51
+#define MAPY 26

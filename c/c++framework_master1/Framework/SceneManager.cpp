@@ -9,7 +9,7 @@
 
 SceneManager* SceneManager::Instance = nullptr;
 
-SceneManager::SceneManager() : SceneState(nullptr)
+SceneManager::SceneManager() : SceneState(nullptr), GetSceneState(nullptr)
 {
 }
 
@@ -56,6 +56,7 @@ void SceneManager::SetScene(SCENEID _SceneID)
 		exit(NULL);
 		break;
 	}
+	GetSceneState = SceneState;
 	SceneState->Start();
 }
 
@@ -73,4 +74,7 @@ void SceneManager::Release()
 {
 	delete SceneState;
 	SceneState = nullptr;
+
+	delete GetSceneState;
+	GetSceneState = nullptr;
 }
