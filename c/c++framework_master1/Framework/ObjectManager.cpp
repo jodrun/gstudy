@@ -7,6 +7,8 @@
 #include "CursorManager.h"
 #include "MathManager.h"
 #include "ObjectFactory.h"
+#include "SceneManager.h"
+
 
 ObjectManager* ObjectManager::Instance = nullptr;
 
@@ -28,9 +30,9 @@ void ObjectManager::CreateObject(int _StateIndex)
 
 void ObjectManager::Start()
 {
+	pMap = ObjectFactory::CreateMap();
 	pPlayer = ObjectFactory::CreatePlayer();
 	pEnemy = ObjectFactory::CreateEnemy();
-	pMap = ObjectFactory::CreateMap();
 }
 
 void ObjectManager::Update()

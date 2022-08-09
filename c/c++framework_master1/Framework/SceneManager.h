@@ -14,8 +14,6 @@ public:
 			Instance = new SceneManager;
 		return Instance;
 	}
-public:
-	Scene* GetSceneState;
 private:
 	Scene* SceneState;
 public:

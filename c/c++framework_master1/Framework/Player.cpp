@@ -3,6 +3,7 @@
 #include "InputManager.h"
 #include "CursorManager.h"
 #include "ObjectManager.h"
+#include "Map.h"
 
 Player::Player()
 {
