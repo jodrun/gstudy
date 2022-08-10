@@ -1,8 +1,11 @@
 #pragma once
 #include "Object.h"
 
+class Map;
 class Player : public Object
 {
+public:
+	Map* Maze;
 public:
 	virtual void Start()override;
 	virtual int  Update()override;
