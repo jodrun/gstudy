@@ -1,6 +1,7 @@
 #pragma once
 #include "Headers.h"
 
+class Map;
 class Object;
 class ObjectManager
 {

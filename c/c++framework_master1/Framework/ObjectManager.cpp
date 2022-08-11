@@ -25,7 +25,6 @@ ObjectManager::~ObjectManager()
 
 void ObjectManager::CreateObject(int _StateIndex)
 {
-	
 }
 
 void ObjectManager::Start()
@@ -37,9 +36,22 @@ void ObjectManager::Start()
 
 void ObjectManager::Update()
 {
+	int result = 0;
+
 	pMap->Update();
 	pPlayer->Update();
-	pEnemy->Update();
+
+	if (pEnemy)
+	{
+		result = pEnemy->Update();
+
+		if (CollisionManager::RectCollision(
+			pPlayer->GetTransform(),
+			pEnemy->GetTransform()))
+		{
+			CursorManager::GetInstance()->WriteBuffer(0.0f, 0.0f, (char*)"충돌입니다.");
+		}
+	}
 }
 
 void ObjectManager::Render()

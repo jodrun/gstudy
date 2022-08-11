@@ -75,7 +75,7 @@ int Player::Update()
 
 void Player::Render()
 {
-	CursorManager::GetInstance()->WriteBuffer(Info.Position, (char*)"À¿");
+	CursorManager::GetInstance()->WriteBuffer(Info.Position, (char*)"À¿", 10);
 	CursorManager::GetInstance()->WriteBuffer(Info.Position.x - Info.Position.x + 70, Info.Position.y - Info.Position.y, (char*)"X : ");
 	CursorManager::GetInstance()->WriteBuffer(Info.Position.x - Info.Position.x + 74, Info.Position.y - Info.Position.y, Info.Position.x);
 	CursorManager::GetInstance()->WriteBuffer(Info.Position.x - Info.Position.x + 78, Info.Position.y - Info.Position.y, (char*)"Y : ");
