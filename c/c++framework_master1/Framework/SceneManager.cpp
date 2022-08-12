@@ -56,7 +56,6 @@ void SceneManager::SetScene(SCENEID _SceneID)
 		exit(NULL);
 		break;
 	}
-
 	SceneState->Start();
 }
 

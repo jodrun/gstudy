@@ -25,6 +25,11 @@ ObjectManager::~ObjectManager()
 
 void ObjectManager::CreateObject(int _StateIndex)
 {
+	switch(_StateIndex)
+		case 1:
+
+			break;
+
 }
 
 void ObjectManager::Start()
@@ -50,6 +55,7 @@ void ObjectManager::Update()
 			pEnemy->GetTransform()))
 		{
 			CursorManager::GetInstance()->WriteBuffer(0.0f, 0.0f, (char*)"충돌입니다.");
+			SceneManager::GetInstance()->SetScene(SCENEID::STAGE);
 		}
 	}
 }

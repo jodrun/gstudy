@@ -73,14 +73,9 @@ void ObjectManager::Update()
 				pBullet[i]->GetTransform()))
 			{
 				CursorManager::GetInstance()->WriteBuffer(0.0f, 0.0f, (char*)"충돌입니다.");
-				for (int i = 0; i < 128; ++i)
-				{
-					if (pBullet[i])
-					{
+					if (pBullet)
 						delete pBullet[i];
 						pBullet[i] = nullptr;
-					}
-				}
 			}
 		}
 
