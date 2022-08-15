@@ -5,7 +5,7 @@
 
 Easy::Easy()
 {
-
+	
 }
 
 Easy::~Easy()
@@ -15,6 +15,7 @@ Easy::~Easy()
 
 void Easy::Start()
 {
+	ObjectManager::GetInstance()->CreateObject(1);
 	ObjectManager::GetInstance()->Start();
 }
 

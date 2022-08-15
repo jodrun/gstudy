@@ -4,6 +4,8 @@
 #include "CursorManager.h"
 #include "ObjectManager.h"
 #include "Map.h"
+#include "SceneManager.h"
+#include "MainUpdate.h"
 
 Player::Player() : Maze(nullptr)
 {
@@ -67,8 +69,15 @@ int Player::Update()
 	}
 
 	if (dwKey & KEY_SPACE)
+	{
+		Maze->StrMaze[((int)Info.Position.y - 7)][((int)Info.Position.x - 24) / 2] = '4';
+		//Map::SetMaze(Maze->StrMaze)
+	}
 		
 	if (dwKey & KEY_ESCAPE)
+	{
+		SceneManager::GetInstance()->SetScene(SCENEID::LOGO);
+	}
 
 	return 0;
 }

@@ -74,7 +74,9 @@ void Map::OutPutMaze(char _Maze[MAPY][MAPX])
     {
     	for (int j = 0; j < MAPX; ++j)
     	{
-    		if (_Maze[i][j] == '0')
+			if (_Maze[i][j] == '4')
+				CursorManager::GetInstance()->WriteBuffer(Info.Position.x, Info.Position.y, (char*)"в┴");
+    		else if (_Maze[i][j] == '0')
     			CursorManager::GetInstance()->WriteBuffer(Info.Position.x, Info.Position.y, (char*)"бс");
     	    else if (_Maze[i][j] == '1')
     		 	CursorManager::GetInstance()->WriteBuffer(Info.Position.x, Info.Position.y, (char*)"  ");

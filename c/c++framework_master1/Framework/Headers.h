@@ -14,3 +14,4 @@ using namespace std;
 
 #define MAPX 51
 #define MAPY 26
+

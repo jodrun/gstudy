@@ -3,7 +3,7 @@
 
 class Object
 {
-protected:
+public:
 	Transform Info;
 	Object* Target;
 public:
